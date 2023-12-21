@@ -66,15 +66,6 @@ def gene_symbol_split(gene_cf_row):
     return x
 
 
-def process_gene_ncbi(df):
-    # Pull NCBI-Gene Conversion link & merge back to Gene data
-    ncbi_gene_id_url = f"https://rest.kegg.jp/conv/hsa/ncbi-geneid"
-    ncbi_genes_df = pull_data_to_df(ncbi_gene_id_url,columns = ['ncbi_gene_id','gene_id']) # No need to save raw
-    ncbi_genes_df['ncbi_gene_id'] = ncbi_genes_df['ncbi_gene_id'].apply(lambda x: x.replace('ncbi-geneid:',''))
-    ncbi_genes_df['gene_id'] = ncbi_genes_df['gene_id'].apply(lambda x: x.replace('hsa:',''))
-    df = df.merge(ncbi_genes_df,on=['gene_id'],how='left')
-
-
 def process_gene(df):
     df['gene_name'] = df['gene_symbol_and_name'].apply(lambda x: gene_name_split(x))
     df['gene_symbol'] = df['gene_symbol_and_name'].apply(lambda x: gene_symbol_split(x))
@@ -171,6 +162,7 @@ def process_module(df,return_df=True):
 # Links
 ################################################################################################################
 def process_link(df,db_table,link_df=pd.DataFrame()):
+
     if 'pathway_id' in df.columns:
         df['pathway_id'] = df['pathway_id'].apply(lambda x: x.replace('path:hsa','P'))
         df['pathway_id'] = df['pathway_id'].apply(lambda x: x.replace('path:map','P'))
@@ -243,7 +235,7 @@ db_table_dict = {
         'columns':['disease_id','gene_id']
         #'proc_func': process_link
     },
-    'gene_ncbi':{
+    'ncbi_gene':{
         'url':'https://rest.kegg.jp/conv/hsa/ncbi-geneid',
         'columns':['ncbi_gene_id','gene_id'],
         'proc_func': process_link

@@ -100,17 +100,25 @@ def batch_fetch_summary_data(db_table,webenv,querykey,record_count,batch_size=10
 
 # Gene-Related General - Usd on FTP-downloads & Entrez Extractions
 ################################################################################################################
-def process_gene_general(gene_df=pd.DataFrame(),db_table=None):
+def process_ftp_gene(db_table,gene_df=pd.DataFrame(),mod_cols={}):
 
     if gene_df.empty:
         gene_df = pd.read_csv(f"data/raw/tmp/{db_table}.gz",sep="\t")
     
     if db_table in ['snp','gene']:
-        columns = {'Name':'tax_id','uid':'Gene_ID'}
+        new_col_names = {'Name':'tax_id','uid':'Gene_ID'}
     else:
-        columns = {'#tax_id':'tax_id','GeneID':'Gene_ID'}
-        gene_df = gene_df.rename(columns={'#tax_id':'tax_id','GeneID':'Gene_ID'})
+        new_col_names = {'#tax_id':'tax_id','GeneID':'Gene_ID'}
+        if mod_cols:
+            new_col_names.update(mod_cols)
+
+        gene_df = gene_df.rename(columns=new_col_names)
+
+        gene_df['Gene_ID'] = 'G'+gene_df['Gene_ID'].astype(str)
+
+        # Cut down to human - homo sapien - only
         gene_df = gene_df[gene_df['tax_id']==9606].reset_index(drop=True)
+        gene_df = gene_df.drop(columns=['tax_id'])
 
     gene_df.columns = [c.upper() for c in gene_df.columns]
 
@@ -119,29 +127,80 @@ def process_gene_general(gene_df=pd.DataFrame(),db_table=None):
 
 # FTP: Gene Info
 ################################################################################################################
-def process_gene_info(df):
-    df = process_gene_general(df)
-    df = df.drop(columns=['TAX_ID','LOCUSTAG','MODIFICATION_DATE','DBXREFS'])
+def split_bar_lists(gi_row):
+    return gi_row.split('|')
 
-    return {'gene_info':df}
+def normalize_column(df,columns,explode_column):
+    df_explode = df.copy(deep=True)
+    df_explode = df_explode[columns]
+    df_explode = df_explode.explode(explode_column)
+
+    df_explode = df_explode[df_explode[explode_column]!='NaN'].reset_index(drop=True)
+
+    if explode_column == 'DBXREFS':
+        df_explode['REF_ID'] = df_explode['DBXREFS'].apply(lambda x: x.split(':')[-1])
+        df_explode['REF'] = df_explode['DBXREFS'].apply(lambda x: x.split(':')[0].replace(':','_'))
+        df_explode = df_explode.drop(columns=[explode_column])
+
+    if explode_column == 'FEATURE_TYPE':
+        df_explode['FEATURE_CAT'] = df_explode['FEATURE_TYPE'].apply(lambda x: x.split(':')[0])
+        df_explode['FEATURE'] = df_explode['FEATURE_TYPE'].apply(lambda x: x.split(':')[1])
+        df_explode = df_explode.drop(columns=["FEATURE_TYPE"])
+
+    return df_explode 
+
+
+def process_gene_info(mod_cols):
+    df = process_ftp_gene(db_table="gene_info",mod_cols=mod_cols)
+    df = df.drop(columns=['LOCUSTAG','MODIFICATION_DATE'])
+
+    explode_dict = {}
+    exp_cols = ['SYNONYMS','DBXREFS','OTHER_DESIGNATIONS','FEATURE_TYPE']
+    for column in exp_cols:
+        df[column] = df[column].replace('-','NaN')
+        df[column] = df[column].apply(lambda x: split_bar_lists(x))
+        exp_cols = ['GENE_ID',column]
+        explode_dict[column] = normalize_column(df,exp_cols,column)
+    
+
+    df = df.drop(columns=['SYNONYMS','DBXREFS','OTHER_DESIGNATIONS','FEATURE_TYPE'])
+
+    # Binary indicator for official status
+    df['NOMENCLATURE_STATUS'] = np.where(df['NOMENCLATURE_STATUS']=='O',1,0)
+    df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY'] = np.where(df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY']=='-',df['SYMBOL'],df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY'])
+    df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY'] = df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY'].replace('-',np.NaN)
+    df['NAME'] = df['NAME'].replace('-',np.NaN)
+    df['CHROMOSOME'] = df['CHROMOSOME'].replace('-','Un')
+
+    df = df.drop(columns=['SYMBOL'])
+    df = df.rename(columns={'SYMBOL_FROM_NOMENCLATURE_AUTHORITY':'SYMBOL'})
+
+    final_data = {'gene_info':df,
+                  'gene_info_synonym_lookup':explode_dict['SYNONYMS'],
+                  'gene_info_dbxref_lookup':explode_dict['DBXREFS'],
+                  'gene_info_otherdesig_lookup':explode_dict['OTHER_DESIGNATIONS'],
+                  'gene_info_feature_lookup':explode_dict['FEATURE_TYPE']
+                }
+
+
+    return final_data
 
 
 # FTP: Gene Orthologs
 ################################################################################################################
-def process_gene_orthologs(df):
-    df = process_gene_general(df)
-    df = df.rename(columns={'OTHER_GENEID':'OTHER_GENE_ID'})
-    df = df.drop(columns=['TAX_ID','RELATIONSHIP'])
+def process_gene_orthologs(mod_cols):
+    df = process_ftp_gene(db_table="gene_orthologs",mod_cols=mod_cols)
+    df = df.drop(columns=['RELATIONSHIP'])
 
     return {'gene_orthologs':df}
 
 
 # FTP: Gene2Go
 ################################################################################################################
-def process_gene2go(df):
-    df = process_gene_general(df)
-    df = df.rename(columns={'PUBMED':'PUBMED_ID'})
-    df = df.drop(columns=['TAX_ID'])
+def process_gene2go(mod_cols):
+    df = process_ftp_gene(db_table="gene2go",mod_cols=mod_cols)
+    df['PUBMED'] = np.where(df['PUBMED']=='-',np.NaN,df['PUBMED'])
+    df['GO_ID'] = df['GO_ID'].apply(lambda x: x.replace(':',''))
 
     return {'gene2go':df}
 
@@ -174,6 +233,7 @@ def process_gene_summary(df):
     df['NomenclatureSymbol'] = df['NomenclatureSymbol'].replace('',np.NaN)
     df['NomenclatureName'] = df['NomenclatureName'].replace('',np.NaN)
     df['Summary'] = df['Summary'].replace('',np.NaN)
+    df['MapLocation'] = df['MapLocation'].replace('',np.NaN)
 
     ## Normalize Gene Symbol Aliases
     gene_summary_symbols = df[['GENE_ID','OtherAliases']]
@@ -193,16 +253,88 @@ def process_gene_summary(df):
     df = df[gene_data_cols]
     df.columns = [c.upper() for c in df.columns]
 
-    return {'gene_summary':df,'gene_symbol_lookup':gene_summary_symbols,'gene_omim_lookup':gene_summary_mim}
+    final_data = {'gene_summary':df,
+                  'gene_summary_symbol_lookup':gene_summary_symbols,
+                  'gene_summary_omim_lookup':gene_summary_mim}
+
+    return final_data
 
 
 # Entrez: SNP Summaries
 ################################################################################################################
-def process_snp_summary(df):
-    webenv,querykey,count = get_accession_ids(db="snp",search_term="human[ORGN]")
-    df = batch_fetch_summary_data(db="snp",webenv=webenv,querykey=querykey,record_count=count)
+def extract_snp_genes(snp_row):
+    return [d['GENE_ID'] for d in snp_row]
 
-    return {'snp':df}
+def list_attribute(snp_row):
+    return snp_row.split(',')
+
+def normalize_snp_column(df,columns,explode_column):
+    df_explode = df.copy(deep=True)
+    df_explode = df_explode[columns]
+    df_explode = df_explode.explode(explode_column)
+
+    df_explode = df_explode[df_explode[explode_column]!='']
+    df_explode = df_explode[df_explode[explode_column].notnull()].reset_index(drop=True)
+
+    return df_explode 
+
+def doc_sum_to_dict(snp_row):
+    d = {}
+    x = snp_row.split('|')
+
+    for i in x:
+        isplit = i.split('=')
+        d[isplit[0]] = isplit[1]
+
+    return d
+
+
+def process_snp_summary(data):
+
+    df = data.copy(deep=True)
+    df = df.rename(columns={"GENES":"GENE_ID"})
+
+    df['SNP_ID'] = 'rs'+df['SNP_ID']
+    
+    explode_dict = {}
+    for column in ['GENE_ID','FXN_CLASS','SS']:
+        if column == "GENE_ID":
+            df["GENE_ID"] = df["GENE_ID"].apply(lambda x: extract_snp_genes(x))
+        else:
+            df[column] = df[column].apply(lambda x: list_attribute(x))
+
+        exp_cols = ['SNP_ID',column]
+        explode_dict[column] = normalize_snp_column(df,exp_cols,column)
+
+
+    df['DOCSUM'] = df['DOCSUM'].apply(lambda x: doc_sum_to_dict(x))
+    df['SEQ'] = df['DOCSUM'].apply(lambda x: x.get('SEQ'))
+    df['LEN'] = df['DOCSUM'].apply(lambda x: x.get('LEN'))
+    df['HGVS'] = df['DOCSUM'].apply(lambda x: x.get('HGVS'))
+
+    df['CLINICAL_SIGNIFICANCE'] = df['CLINICAL_SIGNIFICANCE'].replace('',np.NaN)
+
+    drop_cols = ['GLOBAL_SAMPLESIZE','GLOBAL_POPULATION','SUSPECTED',\
+                 'ALLELE_ORIGIN','ACC','GLOBAL_MAFS','GENE_LIST','n_genes',\
+                 'TAX_ID','CREATEDATE','UPDATEDATE','HANDLE','ORIG_BUILD','CHRPOS_PREV_ASSM','TEXT','uid']
+    
+    drop_cols = drop_cols + [c for c in df.columns if '_SORT' in c]
+    drop_cols += ['GENE_ID','FXN_CLASS','SS','DOCSUM']
+    
+    for col in drop_cols:
+        try:    
+            df.drop(columns=[col],inplace=True)
+        except:
+            pass
+
+
+    final_data = {'snp_summary':df,
+                  'snp_summary_gene_lookup':explode_dict['GENE_ID'],
+                  'snp_summary_fxn_lookup':explode_dict['FXN_CLASS'],
+                  'snp_summary_ss_lookup':explode_dict['SS']
+                }
+
+    return final_data
 
 
 ################################################################################################################
@@ -210,26 +342,29 @@ def process_snp_summary(df):
 ################################################################################################################
 db_table_dict = {
     'gene_info':{
-        'proc_func': process_gene_info
+        'proc_func': process_gene_info,
+        'mod_cols':{'Full_name_from_nomenclature_authority':'NAME'}
     },
     'gene_orthologs':{
-        'proc_func': process_gene_orthologs
+        'proc_func': process_gene_orthologs,
+        'mod_cols':{'Other_GeneID':'Other_Gene_ID'}
     },
     'gene2go':{
-        'proc_func': process_gene2go
+        'proc_func': process_gene2go,
+        'mod_cols':{'PUBMED':'PUBMED_ID'}
     },
-    'gene':{
+    'gene_summary':{
         'proc_func': process_gene_summary,
         'search_term':'9606[TID] NOT (replaced[Properties] OR discontinued[Properties])'
     },
-    'snp':{
+    'snp_summary':{
         'proc_func': process_snp_summary,
-        'search_term':'human[ORGN]'
+        'search_term':'human[ORGN] AND common variant[Filter]'
     },
-    'omim':{
-        'proc_func': process_omim_summary,
-        'search_term':'gene[ALL]'
-    }
+    #'omim':{
+    #    'proc_func': process_omim_summary,
+    #    'search_term':'gene[ALL]'
+    #}
 }
 
 valid_dbs = ['gene','snp','omim','gene_info','gene2go','gene_orthologs']
