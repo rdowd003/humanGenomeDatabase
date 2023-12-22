@@ -18,10 +18,10 @@ class humanGenomeDataPipe():
 
     def set_pipe(self,pipetype):
         if pipetype == 'kegg':
-            self.datapipe = kegg.keggDataPipe()
+            self.datapipe = kegg.keggDataPipe(cfg.DEBUG)
 
         elif pipetype == 'ncbi':
-            self.datapipe = ncbi.ncbiDataPipe()
+            self.datapipe = ncbi.ncbiDataPipe(cfg.DEBUG)
     
 
     def extract_data(self):
@@ -30,7 +30,7 @@ class humanGenomeDataPipe():
         if self.db_table:
             raw_data_dict = self.datapipe.extract_one(self.db_table)
         else:
-            raw_data_dict = self.datapipe.extract()
+            raw_data_dict = self.datapipe.extract_all()
 
         return raw_data_dict
 
@@ -66,11 +66,11 @@ class humanGenomeDataPipe():
 
 
 
-    def load_data(self,data_table_dict):
-        
+    def load_data(self):
+
         mysqlpipe = hgdm.mysqlDataPipe()
 
-        for db_table,filepath in data_table_dict.items():
+        for db_table,filepath in self.data_dict.items():
             mysqlpipe.create_table(db_table)
             mysqlpipe.load_data(db_table,filepath)
 
@@ -83,25 +83,26 @@ class humanGenomeDataPipe():
         self.data_dict["processed"] = self.transform_data()
         self.load_data(self.data_dict["processed"])
 
+
     
     def execute(self,pipetype,db_table=None):
         # Sequential run of sources & tables
+        # If None, all source-db_tables will refresh, otherwise just the one provided
+        self.pipetype = pipetype
+        self.db_table = db_table
         
-        if not pipetype:
+        if pipetype == 'refresh':
             # Full refresh
-            sources_to_run = [source for source in cfg.PIPE_TYPES]
+            sources_to_run = [source for source in cfg.SOURCES]
         else:
             # refresh from specific source
             sources_to_run = [self.pipetype]
-
-        # If None, all source-db_tables will refresh, otherwise just the one provided
-        self.db_table = db_table
         
         for source in sources_to_run:
             self.full_etl(source)
 
 
-
+s
         
 
 

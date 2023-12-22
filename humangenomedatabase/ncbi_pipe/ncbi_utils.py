@@ -3,9 +3,8 @@ import pandas as pd
 import numpy as np
 from Bio import Entrez
 
-from ...configs import auto_config as cfg
-Entrez.email = cfg.ENTREZ_EMAIL
-Entrez.api_key = cfg.ENTREZ_API_KEY
+Entrez.email = os.getenv("ENTREZ_EMAIL")
+Entrez.api_key = os.getenv("ENTREZ_API_KEY")
 
 ################################################################################################################
 ################################################################################################################

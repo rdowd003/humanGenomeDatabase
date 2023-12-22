@@ -5,15 +5,15 @@ import requests
 import pandas as pd
 import numpy as np
 
-from configs import auto_config as cfg
 import humangenomedatabase.kegg_pipe.kegg_utils as kegg
 import humangenomedatabase.hgd_utils as hgd
 
 
 class keggDataPipe():
-    def __init__(self,ncpu_max=1):
+    def __init__(self,config):
         self.db_table_dict = kegg.db_table_dict
-        self.ncpu_max = ncpu_max
+        self.ncpu_max = config['NCPU_MAX']
+        self.debug = config['DEBUG']
 
 
     def extract_one(self,db_table):
@@ -29,14 +29,16 @@ class keggDataPipe():
         raw_df = kegg.api_download_to_df(data,new_cols)
 
         # Return a dictionary of either the data itself (for debugging) or filepath of saved location
-        if cfg.DEBUG:
+        if self.debug:
+            # Return data
             return {db_table:raw_df}
         else:
+            # Exchange data for saved filepath
             fp = hgd.save_data(raw_df,db_table,"kegg")
             return {db_table:fp}
 
 
-    def extract(self):
+    def extract_all(self):
         # Multi-threaded API calls
         urls_dict = {v['url']:k for k,v in self.db_table_dict.items()}
         raw_extract_urls = list(urls_dict.keys())
@@ -46,6 +48,7 @@ class keggDataPipe():
         extract_data_dict = {}
 
         # Extract data into dataframes & add file-paths of each saved DF to filepath-dicitonary
+        # No returning data - this is intended to be looping over all DBs
         for response in p.responses():
             try:
                 data = response.content.decode()

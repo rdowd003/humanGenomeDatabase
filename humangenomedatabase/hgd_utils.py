@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from ..configs import auto_config as cfg
+from configs import auto_config as cfg
 
 
 def validate_db_type(self,db_table,source_dbs):
