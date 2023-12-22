@@ -8,11 +8,19 @@ Entrez.email = cfg.ENTREZ_EMAIL
 Entrez.api_key = cfg.ENTREZ_API_KEY
 
 ################################################################################################################
-# RAW DATA EXTRACT FUNCTIONS
+################################################################################################################
+# 1 - DATA EXTRACTION FUNCTIONS
+################################################################################################################
 ################################################################################################################
 
-# NCBI-FTP-Related Extraction Functions
 ################################################################################################################
+## 1.2 NCBI FTP
+################################################################################################################
+
+"""
+blah blah blah
+"""
+
 def ftp_script_download(db_table):
     cmd = f'../scripts/pull_ncbi_ftp.sh {db_table}'
     os.system(cmd)
@@ -22,8 +30,14 @@ def ftp_script_download(db_table):
     return df
 
 
-# Entrez-Related Extraction Functions
 ################################################################################################################
+## 1.2 NCBI Entrez
+################################################################################################################
+
+"""
+blah blah blah
+"""
+
 def get_db_fields(db_table="gene",verbose=False):
     handle = Entrez.einfo(db=db_table)
     record = Entrez.read(handle)
@@ -94,12 +108,28 @@ def batch_fetch_summary_data(db_table,webenv,querykey,record_count,batch_size=10
     return final_data
 
 
+
+
+
+
 ################################################################################################################
-# RAW DATA PROCESSING FUNCTIONS
+################################################################################################################
+# 2 - NCBI DATA PROCESSING FUNCTIONS
+################################################################################################################
 ################################################################################################################
 
-# Gene-Related General - Usd on FTP-downloads & Entrez Extractions
+
 ################################################################################################################
+## 2.1 FTP-DATA PROCESSING
+################################################################################################################
+
+"""
+The functions below are used on data is that is extracted from NCBI directly via their FTP servers. The data 
+is downloaded in compressed-binary format & is saved during the transformation process, ready directly from
+the compressed format into pandas dataframes for processing.
+"""
+
+# 2.1.0 General Gene-Related ###################################################################################
 def process_ftp_gene(db_table,gene_df=pd.DataFrame(),mod_cols={}):
 
     if gene_df.empty:
@@ -125,8 +155,7 @@ def process_ftp_gene(db_table,gene_df=pd.DataFrame(),mod_cols={}):
     return gene_df
 
 
-# FTP: Gene Info
-################################################################################################################
+# 2.1.1 Gene Info ##############################################################################################
 def split_bar_lists(gi_row):
     return gi_row.split('|')
 
@@ -186,8 +215,7 @@ def process_gene_info(mod_cols):
     return final_data
 
 
-# FTP: Gene Orthologs
-################################################################################################################
+# 2.1.2 FTP: Gene Orthologs #########################################################################################
 def process_gene_orthologs(mod_cols):
     df = process_ftp_gene(db_table="gene_orthologs",mod_cols=mod_cols)
     df = df.drop(columns=['RELATIONSHIP'])
@@ -195,8 +223,7 @@ def process_gene_orthologs(mod_cols):
     return {'gene_orthologs':df}
 
 
-# FTP: Gene2Go
-################################################################################################################
+# 2.1.3 FTP: Gene2go ###########################################################################################
 def process_gene2go(mod_cols):
     df = process_ftp_gene(db_table="gene2go",mod_cols=mod_cols)
     df['PUBMED'] = np.where(df['PUBMED']=='-',np.NaN,df['PUBMED'])
@@ -205,8 +232,21 @@ def process_gene2go(mod_cols):
     return {'gene2go':df}
 
 
-# Entrez: Gene Summaries
+
+
+
+
 ################################################################################################################
+## 2.2 NCBI Entrez & Biopython
+################################################################################################################
+
+"""
+The functions below are used on data is that is extracted from NCBI through the use of the python module
+"Biopython". This module is a wrapper that relies on the NCBI-developed "Entrez Eutilities" which provide a 
+REST api service for querying & extracting all data hosted on the NCBI database servers.
+"""
+
+# 2.2.1 Gene Summaries #########################################################################################
 def access_org_tax(org_row):
     return org_row['TaxID']
 
@@ -260,8 +300,7 @@ def process_gene_summary(df):
     return final_data
 
 
-# Entrez: SNP Summaries
-################################################################################################################
+# 2.2.2 SNP Summaries ##########################################################################################
 def extract_snp_genes(snp_row):
     return [d['GENE_ID'] for d in snp_row]
 
@@ -338,7 +377,9 @@ def process_snp_summary(data):
 
 
 ################################################################################################################
-# DATABASE PARAMS
+################################################################################################################
+# 3 - NCBI DATA PARAMS
+################################################################################################################
 ################################################################################################################
 db_table_dict = {
     'gene_info':{
@@ -366,5 +407,3 @@ db_table_dict = {
     #    'search_term':'gene[ALL]'
     #}
 }
-
-valid_dbs = ['gene','snp','omim','gene_info','gene2go','gene_orthologs']

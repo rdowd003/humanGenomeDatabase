@@ -1,61 +1,48 @@
 import os
 import requests
-
 import pandas as pd
 
+from configs import auto_config as cfg
 import humangenomedatabase.ncbi_pipe.ncbi_utils as ncbi
-from humangenomedatabase.hgd_pipe import humanGenomeDataPipe
+import humangenomedatabase.hgd_utils as hgd
 
 
-class ncbiDataPipe(humanGenomeDataPipe):
+class ncbiDataPipe:
     def __init(self):
-        super().__init__()
-        self.db_table = super.db_table
+        self.db_table_dict = self.db_table_dict
+    
+    def extract_one(self,db_table):
+        valid_dbs = list(self.db_table_dict.keys())
+        hgd.validate_db_type(db_table,valid_dbs)
 
+        if db_table in ['gene_summary','snp_summary']:
+            db_search_term = self.db_table_dict[db_table]['search_term']
+            ncbi_db = db_table.replace('_summary','')
+            webenv,querykey,count = ncbi.get_accession_ids(db=ncbi_db,search_term=db_search_term)
+            raw_df = ncbi.batch_fetch_summary_data(db=ncbi_db,webenv=webenv,querykey=querykey,record_count=count)
 
-
-    def validate_db_type(self):
-        if self.db_type not in ncbi.valid_dbs:
-            raise Exception("Invalid Database. Please Try one of: {valid_dbs}")
-
-
-
-    def _extract_one(self,db_table):
-        if db_table in ['gene','snp','omim']:
-            db_search_term = ncbi.db_table_dict[db_table]['search_term']
-            webenv,querykey,count = ncbi.get_accession_ids(db=db_table,search_term=db_search_term)
-            df = ncbi.batch_fetch_summary_data(db=db_table,webenv=webenv,querykey=querykey,record_count=count)
-
-            if db_table == 'gene':
+            if db_table == 'gene_summary':
                 # Can't figure out why this one won't show up in query above, have to run second time just for this gene
                 webenv,querykey,count = ncbi.get_accession_ids(db=db_table,search_term="9606[TID] AND 1[UID]")
                 df_1 = ncbi.fetch_data("gene",webenv,querykey)
-                df = pd.concat([df_1,df],ignore_index=True)
+                raw_df = pd.concat([df_1,raw_df],ignore_index=True)
         else:
-            df = ncbi.ftp_script_download(db_table)
+            raw_df = ncbi.ftp_script_download(db_table)
 
-        # Save data to local or S3 based on pre-configuration
-        super.save_data(df,db_table,'ncbi','raw')
-
-
-
-    def _extract_all(self):
-        for db_table in ncbi.valid_dbs:
-            self._extract_one(db_table,return_df=False)
-
-        # TODO: Create multithreaded version of this like for Kegg
-
+        if cfg.DEBUG:
+            return {db_table:raw_df}
+        else:
+            fp = hgd.save_data(raw_df,db_table,"ncbi")
+            return {db_table:fp}
 
 
     def extract(self):
-        if self.db_table:
-            self._extract_one(self.db_table)
-        else:
-            self._extract_all()
+    # TODO: Create multithreaded version of this like for Kegg
+        extract_data_dict = {}
 
-    def transform_one(self):
-        pass
+        for db_table in ncbi.valid_dbs:
+            extract_data_dict.update(self.extract_one(db_table))
 
+        return extract_data_dict
 
-    def transform(self):
-        pass
+        

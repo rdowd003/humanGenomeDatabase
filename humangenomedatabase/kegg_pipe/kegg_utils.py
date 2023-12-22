@@ -2,19 +2,28 @@ import pandas as pd
 import numpy as np
 
 ################################################################################################################
-# RAW DATA PROCESSING FUNCTIONS
+################################################################################################################
+# 1 - KEGG DATA EXTRACTION FUNCTIONS
+################################################################################################################
 ################################################################################################################
 
 def api_download_to_df(response_data,columns):
-    df = pd.DataFrame([x.split('\t') for x in response_data.split('\n')])
-    df = df.iloc[:-1,:]
-    df.columns = columns
-    df.columns = [c.upper() for c in df.columns]
+        df = pd.DataFrame([x.split('\t') for x in response_data.split('\n')])
+        df = df.iloc[:-1,:]
+        df.columns = columns
+        df.columns = [c.upper() for c in df.columns]
 
-    return df
+        return df
+
+################################################################################################################
+################################################################################################################
+# 2 - KEGG DATA PROCESSING FUNCTIONS
+################################################################################################################
+################################################################################################################
 
 
-# Pathways
+################################################################################################################
+## 2.1 - Pathways
 ################################################################################################################
 
 def map_pathway_start(pn_row):
@@ -47,7 +56,8 @@ def process_pathway(df):
     return {'pathway':df}
     
 
-# Genes
+################################################################################################################
+## 2.2 - Genes
 ################################################################################################################
 def gene_name_split(gene_cf_row):
     try:
@@ -87,7 +97,8 @@ def process_gene(df):
     return {'gene':df,'gene_symbol_lookup':gene_symbols}
 
 
-# Diseases
+################################################################################################################
+## 2.3 - Diseases
 ################################################################################################################
 
 def list_disease_names(disease_row):
@@ -117,7 +128,8 @@ def process_disease(df):
     return {'disease':df,'disease_name_lookup':disease_names}
     
 
-# Variants
+################################################################################################################
+## 2.4 - Variants
 ################################################################################################################
 
 def process_variant(df):
@@ -131,7 +143,8 @@ def process_variant(df):
     return {'variant':df}
     
 
-# Modules
+################################################################################################################
+## 2.5 - Modules
 ################################################################################################################
 
 def clean_mod_name(mod_row):
@@ -159,8 +172,16 @@ def process_module(df,return_df=True):
     return {'module':df,'module_name_lookup':mod_names}
     
 
-# Links
 ################################################################################################################
+## 2.6 - Database Links
+################################################################################################################
+
+"""
+The functions below pull "link" data which demonstrates links or look-ups between two types of Kegg databases.
+The tables are named <source>_<target>_lookup. The <source> is used as the priamary table (left) and the
+<target> is the joined (right) table. These tables only have the IDs from each link
+"""
+
 def process_link(df,db_table,link_df=pd.DataFrame()):
 
     if 'pathway_id' in df.columns:
@@ -187,8 +208,11 @@ def process_link(df,db_table,link_df=pd.DataFrame()):
 
 
 ################################################################################################################
-# DATABASE PARAMS
 ################################################################################################################
+# 3 - KEGG DATA PARAMS
+################################################################################################################
+################################################################################################################
+
 db_table_dict = {
     'pathway':{
         'url':'https://rest.kegg.jp/list/pathway/hsa',
@@ -227,23 +251,18 @@ db_table_dict = {
     },
     'pathway_disease':{
         'url':'https://rest.kegg.jp/link/disease/pathway',
-        'columns':['pathway_id','disease_id']
-        #'proc_func': process_link
+        'columns':['pathway_id','disease_id'],
+        'proc_func': process_link
     },
     'gene_disease':{
         'url':'https://rest.kegg.jp/link/disease/hsa',
-        'columns':['disease_id','gene_id']
-        #'proc_func': process_link
+        'columns':['disease_id','gene_id'],
+        'proc_func': process_link
     },
     'ncbi_gene':{
         'url':'https://rest.kegg.jp/conv/hsa/ncbi-geneid',
         'columns':['ncbi_gene_id','gene_id'],
         'proc_func': process_link
     }
-#    'variant_gene_lookup':{
-#        'proc_func': process_link_data
-#    }
 }
 
-
-valid_dbs = ['pathway','gene','disease','module','variant','pathway_gene','pathway_disease','pathway_module','gene_disease','variant_gene']
