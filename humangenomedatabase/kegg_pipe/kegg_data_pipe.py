@@ -31,6 +31,7 @@ class keggDataPipe():
         # Return a dictionary of either the data itself (for debugging) or filepath of saved location
         if self.debug:
             # Return data
+            raw_df = raw_df.head(100)
             return {db_table:raw_df}
         else:
             # Exchange data for saved filepath

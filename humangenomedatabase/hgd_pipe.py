@@ -70,7 +70,7 @@ class humanGenomeDataPipe():
 
         mysqlpipe = hgdm.mysqlDataPipe()
 
-        for db_table,filepath in self.data_dict.items():
+        for db_table,filepath in self.data_dict["processed"].items():
             mysqlpipe.create_table(db_table)
             mysqlpipe.load_data(db_table,filepath)
 
@@ -81,13 +81,13 @@ class humanGenomeDataPipe():
         self.set_pipe(pipetype)
         self.data_dict["raw"] = self.extract_data()
         self.data_dict["processed"] = self.transform_data()
-        self.load_data(self.data_dict["processed"])
+        self.load_data()
 
 
     
     def execute(self,pipetype,db_table=None):
         # Sequential run of sources & tables
-        # If None, all source-db_tables will refresh, otherwise just the one provided
+        # If db_table=None, all source-db_tables will refresh, otherwise just the one provided
         self.pipetype = pipetype
         self.db_table = db_table
         
@@ -101,8 +101,6 @@ class humanGenomeDataPipe():
         for source in sources_to_run:
             self.full_etl(source)
 
-
-s
         
 
 

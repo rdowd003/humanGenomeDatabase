@@ -22,16 +22,11 @@ class ncbiDataPipe:
             ncbi_db = db_table.replace('_summary','')
             webenv,querykey,count = ncbi.get_accession_ids(db=ncbi_db,search_term=db_search_term)
             raw_df = ncbi.batch_fetch_summary_data(db=ncbi_db,webenv=webenv,querykey=querykey,record_count=count)
-
-            if db_table == 'gene_summary':
-                # Can't figure out why this one won't show up in query above, have to run second time just for this gene
-                webenv,querykey,count = ncbi.get_accession_ids(db=db_table,search_term="9606[TID] AND 1[UID]")
-                df_1 = ncbi.fetch_data("gene",webenv,querykey)
-                raw_df = pd.concat([df_1,raw_df],ignore_index=True)
         else:
             raw_df = ncbi.ftp_script_download(db_table)
 
         if self.debug:
+            raw_df = raw_df.head(100)
             return {db_table:raw_df}
         else:
             fp = hgd.save_data(raw_df,db_table,"ncbi")

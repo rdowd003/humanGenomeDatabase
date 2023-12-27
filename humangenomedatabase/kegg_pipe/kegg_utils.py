@@ -76,6 +76,38 @@ def gene_symbol_split(gene_cf_row):
     return x
 
 
+def extract_chr_positions(kgene_row,pos_type="start"):
+        try:
+            if 'complement' in kgene_row:
+                kgene_row = kgene_row.split("(")[1].replace(')','')
+            else:
+                kgene_row = kgene_row.split(":")[1]
+            
+            if pos_type == "start":
+                return int(kgene_row.split('..')[1])
+            else:
+                return int(kgene_row.split('..')[0])
+        except:
+            return 0
+        
+
+def extract_chr(kgene_row):
+    if 'MT' in kgene_row:
+        return 'MT'
+    elif 'q' in kgene_row:
+        return kgene_row.split('q')[0]
+    elif ('p' in kgene_row)&('complement' not in kgene_row):
+        return kgene_row.split('p')[0]
+    elif kgene_row == 'X; Y':
+        return 'X;Y'
+    elif kgene_row in ['nan','Un','']:
+        return 'Unknown'
+    elif kgene_row == '13cen':
+        return '13'
+    else:
+        return kgene_row.split(':')[0]
+
+
 def process_gene(df):
     df['gene_name'] = df['gene_symbol_and_name'].apply(lambda x: gene_name_split(x))
     df['gene_symbol'] = df['gene_symbol_and_name'].apply(lambda x: gene_symbol_split(x))
@@ -88,6 +120,12 @@ def process_gene(df):
     gene_symbols['gene_alias_no'] = gene_symbols.groupby(['gene_id'],as_index=False).cumcount()+1
     gene_symbols.columns = [c.upper() for c in gene_symbols.columns]
     gene_symbols = gene_symbols[['GENE_ID','GENE_SYMBOL','GENE_ALIAS_NO']]
+
+    df['CHRSTOP'] = df['chromosomal_position'].apply(lambda x: extract_chr_positions(x,pos_type="stop"))
+    df['CHRSTART'] = df['chromosomal_position'].apply(lambda x: extract_chr_positions(x,pos_type="start"))
+    df['CHR_COMPLEMENT'] = np.where(df['chromosomal_position'].str.contains('complement'),1,0)
+    df['chromosomal_position'] = df['chromosomal_position'].astype(str)
+    df['CHROMOSOME'] = df['chromosomal_position'].apply(lambda x: extract_chr(x))
 
     # Clean up
     df.columns = [c.upper() for c in df.columns]

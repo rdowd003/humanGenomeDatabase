@@ -18,6 +18,7 @@ def load_data(db_table,source,table_type):
         return pd.read_csv(os.path.join(base_dir, file_path))
     else:
          # Load from S3
+        file_path = file_path.replace('csv','gz')
         bucket = cfg.S3_BUCKET
         s3_filepath = f"s3://{bucket}/{file_path}"
         return pd.read_csv(s3_filepath)
@@ -30,6 +31,7 @@ def save_data(self,df,db_table,source,table_type):
     print("Saving file to path: {file_path} in destination: {self.data_location}")
     if cfg.SAVELOC:
         base_dir = os.getcwd()
+        file_path = file_path.replace('csv','gz')
         df.to_csv(os.path.join(base_dir, file_path),index=False)
     else:
         bucket = cfg.S3_BUCKET
