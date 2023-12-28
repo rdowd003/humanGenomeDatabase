@@ -1,39 +1,51 @@
 
 import os
 import pymysql
+import sqlalchemy
+import pandas as pd
 
+import humangenomedatabase.hgd_utils as hgd
 from configs import auto_config as cfg
 
 class mysqlDataPipe:
-    def __init__(self):
-        pass
+    def __init__(self,overwrite=False):
+        self.connect()
     
     def connect(self):
-        self.conn = pymysql.connect(cfg.DB_HOST, cfg.DB_USER, cfg.DB_PASS, local_infile=True)
+        #self.conn = pymysql.connect(cfg.DB_HOST, cfg.DB_USER, cfg.DB_PASS, local_infile=True)
+        conn_string = f"mysql+mysqlconnector://[{cfg.DB_USER}]:[{cfg.DB_PASS}]@[{cfg.DB_HOST}]:[3306]/[{cfg.RDS_DB}]"
+        self.conn = sqlalchemy.create_engine(conn_string, echo=False)
+    
 
-    def create_table(self,name):
-        cursor = self.connection.cursor()
+    def write_data(self,db_table,db_table_df,overwrite,chunksize=None):
+        if overwrite:
+            if_exists = 'overwrite'
+        else:
+            if_exists = 'append'
 
-        cursor.execute(f"""drop table if exists {name} """)
-        cursor.execute(f"""create table {name}(try VARCHAR(4))""")
+        try:
+            db_table_df.to_sql(name=db_table,con=self.conn,
+                            if_exists=if_exists,
+                            index=False,
+                            chunksize=chunksize,
+                            method="multi")
+        except Exception as e:
+            print(e)
+        
+    
+    def execute_query_file(self,q_filepath):
 
-        cursor.close()
+        try:
+            with open(q_filepath) as file:
+                query = sqlalchemy.text(file.read())
+                self.conn.execute(query)
 
-    def load_data(self,db_table,file_name):
-        load_data_cmd = f"""load data local infile "{file_name}" into table {db_table}"""
-
-        cursor = self.connection.cursor()
-        cursor.execute(load_data_cmd)
-
-        cursor.close()
-
-    def execute_query(self,sql_query):
-
-        cursor = self.connection.cursor()
-        cursor.execute(sql_query)
-
-        cursor.close()
-
+        except Exception as e:
+            print(e)
+            
+        finally:
+            self.close()
+            
 
     def close(self):
         if self.connection != None:

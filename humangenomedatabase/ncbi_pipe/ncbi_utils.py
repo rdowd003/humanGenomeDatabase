@@ -447,7 +447,8 @@ def process_snp_summary(data):
 db_table_dict = {
     'gene_info':{
         'proc_func': process_gene_info,
-        'mod_cols':{'Full_name_from_nomenclature_authority':'NAME'}
+        'mod_cols':{'Full_name_from_nomenclature_authority':'NAME'},
+        'schema_file':'sql/gene_info_schema.sql'
     },
     'gene_orthologs':{
         'proc_func': process_gene_orthologs,

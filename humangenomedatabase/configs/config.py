@@ -12,17 +12,16 @@ class Common(object):
     S3_PATH = "human-genome-data/database/"
 
 class Local(Common):
-    SAVELOC = True
-    DEBUG = True
+    IN_MEM = False
 
     RDS_DB = "human-genome-database"
     DB_USER = os.getenv('HGD_USER')
     DB_PASS = os.getenv('HGD_PASSWORD')
     DB_HOST = "localhost"
 
+
 class Production(Common):
-    SAVELOC = False
-    DEBUG = False
+    IN_MEM = True
 
     RDS_DB = "human-genome-database-dev1"
     DB_USER = os.getenv('HGD_USER')
@@ -31,4 +30,4 @@ class Production(Common):
 
 
 class Staging(Production):
-    DEBUG = True
+    IN_MEM = True

@@ -9,7 +9,8 @@ def validate_db_type(self,db_table,source_dbs):
         raise Exception("Invalid Database. Please Try one of: {source_dbs}")
 
 
-def load_data(db_table,source,table_type):
+def load_data(db_table,table_type):
+    source = db_table.split('_')[0]
     filename = f"human_{db_table}_data.csv"
     file_path = f"data/{table_type}/{source}/{filename}"
 
