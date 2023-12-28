@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from configs import auto_config as cfg
 
 
@@ -39,3 +40,22 @@ def save_data(self,df,db_table,source,table_type):
         df.to_csv(s3_filepath,index=False)
     
     return file_path
+
+
+def join_gene_data(ncbi_gene_info,ncbi_gene_summary,kegg_gene):
+    ncbi_gene_info = ncbi_gene_info[['GENE_ID','GENE_TYPE','NOMENCLATURE_STATUS']]
+    gene_merged = ncbi_gene_info.merge(ncbi_gene_summary,on=['GENE_ID'],how='outer',suffixes=['_NCBI_GI','_NCBI_SUM'])
+
+    kegg_gene['GENE_ID'] = np.where(kegg_gene['NCBI_GENE_ID'].isnull(),kegg_gene['GENE_ID'],kegg_gene['NCBI_GENE_ID'])
+    kegg_gene = kegg_gene.drop(columns=['NCBI_GENE_ID'])
+    kegg_gene = kegg_gene[['GENE_ID','CHRSTOP','CHRSTART','CHR_COMPLEMENT','GENE_TYPE']]
+
+    gene_merged = gene_merged.merge(kegg_gene,on=['GENE_ID'],how='outer',suffixes=['','_KEGG'])
+
+    # Post merge processing
+    gene_merged['GENE_TYPE'] = np.where(gene_merged['GENE_TYPE'].isnull(),gene_merged['GENE_TYPE_KEGG'],gene_merged['GENE_TYPE'])
+    gene_merged['GENE_TYPE_ALT'] = np.where(gene_merged['GENE_TYPE_KEGG']!=gene_merged['GENE_TYPE'],gene_merged['GENE_TYPE_KEGG'],np.NaN)
+
+    gene_merged = gene_merged.drop(columns = ['GENE_TYPE_KEGG','CHRSTOP_KEGG','CHRSTART_KEGG'])
+
+    return gene_merged

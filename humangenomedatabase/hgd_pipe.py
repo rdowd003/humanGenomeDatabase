@@ -9,14 +9,21 @@ import humangenomedatabase.hgd_utils as hgd
 import humangenomedatabase.kegg_pipe  as kegg
 import humangenomedatabase.ncbi_pipe as ncbi
 import hgd_mysql as hgdm
-
+from hgd_logging import log
 
 class humanGenomeDataPipe():
     def __init__(self):
         self.data_dict = {}
+        self.full_refresh = False
+
+        # Logging details
+        self.log_file_name = cfg.LOG_FILE
+        self.logger = log.get_logger(log_file_name=self.log_file_name)
 
 
     def set_pipe(self,pipetype):
+        self.logger.info("Initializing {pipetype} pipeline for Human Genome Database")
+        
         if pipetype == 'kegg':
             self.datapipe = kegg.keggDataPipe(cfg.DEBUG)
 
@@ -33,48 +40,46 @@ class humanGenomeDataPipe():
             raw_data_dict = self.datapipe.extract_all()
 
         return raw_data_dict
+    
+
+    def transform_table(self,db_table):
+        proc_func = self.datapipe.db_table_dict[db_table]['proc_func']
+
+        try:
+            data_df = hgd.load_data(db_table,self.pipetype,'processed')
+        except:
+            raise Exception(f"Table {db_table} not found - please extract first")
+    
+        # All final processing functions return dictionary of {db_table:dataframe}
+        proc_data_dict = proc_func(data_df)
+
+        if cfg.DEBUG:
+            return proc_data_dict
+        else:
+            self.data_dict["processed"][db_table] = hgd.save_data(data_df,db_table,self.pipetype)
 
 
-    def transform_data(self):
+    def transform_data(self,db_table_list=None):
 
         # If not provided with a db_table, then iterate through all tables for processing
-        if not self.db_table:
+        if not db_table_list:
             db_table_list = list(self.datapipe.db_table_dict.keys())
-        else:
-            db_table_list = [self.db_table]
-        
-        proc_data_dict_all = {}
 
         for db_table in db_table_list:
-            proc_func = self.datapipe.db_table_dict[db_table]['proc_func']
-
-            try:
-                data_df = hgd.load_data(self.db_table,self.pipetype,'processed')
-            except:
-                raise Exception(f"Table {db_table} not found - please extract first")
-        
-            # All final processing functions return dictionary of {db_table:dataframe}
-            proc_data_dict = proc_func(data_df)
-
-            if ((cfg.DEBUG) & (len(db_table_list)==1)):
-                return proc_data_dict
-            else:
-                for db_table,df in proc_data_dict.items():
-                    proc_data_dict_all[db_table] = hgd.save_data(df,db_table,self.pipetype)
-        
-        return proc_data_dict_all
-
+            self.transform_table(db_table)
 
 
     def load_data(self):
 
         mysqlpipe = hgdm.mysqlDataPipe()
+        table_list = self.data_dict["processed"].items()
 
-        for db_table,filepath in self.data_dict["processed"].items():
+        for db_table,filepath in table_list:
             mysqlpipe.create_table(db_table)
             mysqlpipe.load_data(db_table,filepath)
 
         mysqlpipe.close()
+
 
 
     def full_etl(self,pipetype):

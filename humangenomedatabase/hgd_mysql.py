@@ -27,6 +27,14 @@ class mysqlDataPipe:
 
         cursor.close()
 
+    def execute_query(self,sql_query):
+
+        cursor = self.connection.cursor()
+        cursor.execute(sql_query)
+
+        cursor.close()
+
+
     def close(self):
         if self.connection != None:
             self.connection.close()

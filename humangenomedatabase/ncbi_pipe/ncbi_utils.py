@@ -178,16 +178,27 @@ def normalize_column(df,columns,explode_column):
         df_explode['FEATURE'] = df_explode['FEATURE_TYPE'].apply(lambda x: x.split(':')[1])
         df_explode = df_explode.drop(columns=["FEATURE_TYPE"])
 
+    df_explode['LOOKUP_SOURCE'] = 'gene_info'
+
     return df_explode 
 
 
-def process_chr(gi_row):
+def process_ml_chr(gi_row):
     if gi_row in ['-','Un']:
         return 'Unknown'
     elif gi_row in ['X|Y','XY']:
         return 'X;Y'
     elif '|' in gi_row:
         return  gi_row.replace('|',';')
+    else:
+        return gi_row
+    
+
+def std_gene_type(gi_row):
+    if gi_row == 'protein-coding':
+        return "CDS"
+    elif gi_row == 'unknown':
+        return 'Unknown'
     else:
         return gi_row
 
@@ -212,10 +223,12 @@ def process_gene_info(mod_cols):
     df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY'] = np.where(df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY']=='-',df['SYMBOL'],df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY'])
     df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY'] = df['SYMBOL_FROM_NOMENCLATURE_AUTHORITY'].replace('-',np.NaN)
     df['NAME'] = df['NAME'].replace('-',np.NaN)
-    df['CHROMOSOME'] = df['CHROMOSOME'].apply(lambda x: process_chr(x))
+    df['CHROMOSOME'] = df['CHROMOSOME'].apply(lambda x: process_ml_chr(x))
+    df['MAP_LOCATION'] = df['MAP_LOCATION'].apply(lambda x: process_ml_chr(x))
+    df['GENE_TYPE'] = df['GENE_TYPE'].apply(lambda x: std_gene_type(x))
 
     df = df.drop(columns=['SYMBOL'])
-    df = df.rename(columns={'SYMBOL_FROM_NOMENCLATURE_AUTHORITY':'SYMBOL','NAME':'GENE_NAME'})
+    df = df.rename(columns={'SYMBOL_FROM_NOMENCLATURE_AUTHORITY':'GENE_SYMBOL','NAME':'GENE_NAME'})
 
     final_data = {'gene_info':df,
                   'gene_info_symbol_lookup':explode_dict['SYNONYMS'],
@@ -278,6 +291,8 @@ def process_chr(gene_row):
         return 'X;Y'
     elif (not gene_row)|(gene_row == 'Un'):
         return 'Unknown'
+    elif ', ' in gene_row:
+        return gene_row.replace(', ',';')
     else:
         return gene_row
     
@@ -287,17 +302,15 @@ def process_gene_summary(df):
                             'NomenclatureName':'GENE_NAME',
                             'Name':'GENE_SYMB_ALT',
                             'GeneWeight':'GENE_WEIGHT',
-                            'GeneticSource':'GENETIC_SOURCE',
                             'MapLocation':'MAP_LOCATION'})
     df['GENE_ID'] = 'G'+df['GENE_ID'].astype(str)
 
     for gi_attr in ['ChrStart','ChrStop','ExonCount','ChrAccVer']:
         df[gi_attr] = df['GenomicInfo'].apply(lambda x: access_chrom_attr(x,gi_attr))
     
-    df['GENE_SYMBOL'] = np.where(df['NomenclatureSymbol']!='',df['NomenclatureSymbol'],np.NaN)
+    df['GENE_SYMBOL'] = np.where(df['NomenclatureSymbol']!='',df['NomenclatureSymbol'],'')
     df['NomenclatureStatus'] = np.where(df['NomenclatureStatus']=='Official',1,0)
 
-    df['GENE_SYMBOL'] = df['GENE_SYMBOL'].replace('',np.NaN)
     df['GENE_NAME'] = df['GENE_NAME'].replace('',np.NaN)
     df['Summary'] = df['Summary'].replace('',np.NaN)
     df['MAP_LOCATION'] = df['MAP_LOCATION'].replace('',np.NaN)
@@ -321,14 +334,19 @@ def process_gene_summary(df):
     gene_symb_alt = gene_symb_alt.rename(columns={'GENE_SYMB_ALT':'GENE_SYMBOL'})
 
     gene_summary_symbols = pd.concat([gene_summary_symbols,gene_symb_alt],ignore_index=True)
+    gene_summary_symbols['LOOKUP_SOURCE'] = 'gene_summary'
+
+    df['GENE_SYMBOL'] = df['GENE_SYMBOL'].replace('',np.NaN)
 
     # Normalize Gene-Mim ID Links
-    gene_summary_mim = df[['GENE_ID','MIM_ID']]
-    gene_summary_mim = gene_summary_mim.explode("MIM_ID")
-    gene_summary_mim = gene_summary_mim[gene_summary_mim['MIM_ID'].notnull()].reset_index(drop=True)
+    gene_summary_omim = df[['GENE_ID','MIM_ID']]
+    gene_summary_omim = gene_summary_omim.explode("MIM_ID")
+    gene_summary_omim = gene_summary_omim[gene_summary_omim['MIM_ID'].notnull()].reset_index(drop=True)
+    gene_summary_omim['LOOKUP_SOURCE'] = 'gene_summary'
 
-    df = df.drop(columns=['LocationHist','Organism','ChrSort','OtherDesignations',\
-                          'OtherAliases','MIM_ID','ChrAccVer','Status','CurrentID','NomenclatureStatus','NomenclatureSymbol','GENE_SYMB_ALT'])
+    df = df.drop(columns=['LocationHist','Organism','ChrSort','OtherDesignations','GenomicInfo',\
+                          'OtherAliases','MIM_ID','ChrAccVer','Status','CurrentID','NomenclatureStatus',\
+                          'NomenclatureSymbol','GENE_SYMB_ALT','GeneticSource'])
 
     gene_data_cols = ['GENE_ID','GENE_SYMBOL'] + [c for c in df.columns if c not in ['GENE_ID','GENE_SYMBOL']]
     df = df[gene_data_cols]
@@ -339,7 +357,7 @@ def process_gene_summary(df):
 
     final_data = {'gene_summary':df,
                   'gene_summary_symbol_lookup':gene_summary_symbols,
-                  'gene_summary_omim_lookup':gene_summary_mim}
+                  'gene_summary_omim_lookup':gene_summary_omim}
 
     return final_data
 
@@ -358,6 +376,7 @@ def normalize_snp_column(df,columns,explode_column):
 
     df_explode = df_explode[df_explode[explode_column]!='']
     df_explode = df_explode[df_explode[explode_column].notnull()].reset_index(drop=True)
+    df_explode['LOOKUP_SOURCE'] = 'snp_summary'
 
     return df_explode 
 
@@ -440,12 +459,12 @@ db_table_dict = {
     },
     'gene_summary':{
         'proc_func': process_gene_summary,
-        'search_term':'9606[TID] NOT (replaced[Properties] OR discontinued[Properties]) AND officially named[Properties]'
+        'search_term':'9606[TID] NOT (replaced[Properties] OR discontinued[Properties]' #) AND officially named[Properties]'
     },
     'snp_summary':{
         'proc_func': process_snp_summary,
-        'search_term':'human[ORGN] AND common variant[Filter]'
-    },
+        'search_term':'homo sapien[ORGN] AND common variant[Filter] AND snp gene[Filter]'
+    }
     #'omim':{
     #    'proc_func': process_omim_summary,
     #    'search_term':'gene[ALL]'

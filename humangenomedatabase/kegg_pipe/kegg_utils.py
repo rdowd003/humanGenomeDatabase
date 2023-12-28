@@ -120,6 +120,7 @@ def process_gene(df):
     gene_symbols['gene_alias_no'] = gene_symbols.groupby(['gene_id'],as_index=False).cumcount()+1
     gene_symbols.columns = [c.upper() for c in gene_symbols.columns]
     gene_symbols = gene_symbols[['GENE_ID','GENE_SYMBOL','GENE_ALIAS_NO']]
+    gene_symbols['lookup_source'] = 'gene'
 
     df['CHRSTOP'] = df['chromosomal_position'].apply(lambda x: extract_chr_positions(x,pos_type="stop"))
     df['CHRSTART'] = df['chromosomal_position'].apply(lambda x: extract_chr_positions(x,pos_type="start"))
@@ -129,7 +130,7 @@ def process_gene(df):
 
     # Clean up
     df.columns = [c.upper() for c in df.columns]
-    df = df.drop(columns=['GENE_SYMBOL','GENE_SYMBOL_AND_NAME'])
+    df = df.drop(columns=['GENE_SYMBOL','GENE_SYMBOL_AND_NAME','CHROMOSOMAL_POSITION'])
 
     # Note: returns gene table & gene-symbol look up table
     return {'gene':df,'gene_symbol_lookup':gene_symbols}
@@ -156,6 +157,7 @@ def process_disease(df):
     disease_names = df.explode('disease_name')
     disease_names = disease_names[['disease_id','disease_name']]
     disease_names.columns = [c.upper() for c in disease_names.columns]
+    disease_names['lookup_source'] = 'disease'
 
     #df = df.groupby(['disease_id'],as_index=False)['disease_name'].count().rename(columns={'disease_name':'disease_name_count'})
     df['disease_name_count'] = df['disease_name'].apply(lambda x: count_names(x))
@@ -201,6 +203,7 @@ def process_module(df,return_df=True):
 
     mod_names = df.explode('module_name')
     mod_names.columns = [c.upper() for c in mod_names.columns]
+    mod_names['lookup_source'] = 'module'
 
     df['module_name_count'] = df['module_name'].apply(lambda x: count_names(x)) # from disease functions
     df = df.drop(columns=['module_name'])
