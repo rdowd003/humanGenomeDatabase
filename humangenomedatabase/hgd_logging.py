@@ -4,7 +4,7 @@ import os
 import sys, os, functools
 from inspect import getframeinfo, stack
 
-from configs import auto_config as cfg
+from humangenomedatabase.configs import auto_config as cfg
 
 
 class CustomFormatter(logging.Formatter):
@@ -19,9 +19,11 @@ class CustomFormatter(logging.Formatter):
         if hasattr(record, 'file_name_override'):
             record.filename = record.file_name_override
         return super(CustomFormatter, self).format(record)
+    
+
 
 # Logger Initialization
-def get_logger(log_file_name, log_sub_dir=""):
+def get_logger(log_file_name,log_sub_dir=cfg.LOG_DIR):
     """ Creates a Log File and returns Logger object """
 
     windows_log_dir = 'c:\\logs_dir\\'
@@ -56,29 +58,22 @@ def log(_func=None):
         @functools.wraps(func)
         def log_decorator_wrapper(self, *args, **kwargs):
             # Build logger object
-            logger_obj = get_logger(log_file_name=self.log_file_name, log_sub_dir=self.log_file_dir)
+            logger_obj = get_logger(log_file_name=self.log_file_name, log_sub_dir=cfg.LOG_DIR)
 
-            """ Create a list of the positional arguments passed to function.
-            - Using repr() for string representation for each argument. repr() is similar to str() only difference being
-             it prints with a pair of quotes and if we calculate a value we get more precise value than str(). """
+            """ Create a list of the positional arguments passed to function"""
             args_passed_in_function = [repr(a) for a in args]
-            """ Create a list of the keyword arguments. The f-string formats each argument as key=value, where the !r 
-                specifier means that repr() is used to represent the value. """
+            """ Create a list of the keyword arguments."""
             kwargs_passed_in_function = [f"{k}={v!r}" for k, v in kwargs.items()]
-
             """ The lists of positional and keyword arguments is joined together to form final string """
             formatted_arguments = ", ".join(args_passed_in_function + kwargs_passed_in_function)
 
-            """ Generate file name and function name for calling function. __func.name__ will give the name of the 
-                caller function ie. wrapper_log_info and caller file name ie log-decorator.py
-            - In order to get actual function and file name we will use 'extra' parameter.
-            - To get the file name we are using in-built module inspect.getframeinfo which returns calling file name """
+            """ Generate file name and function name for calling function."""
             py_file_caller = getframeinfo(stack()[1][0])
             extra_args = { 'func_name_override': func.__name__,
-                           'file_name_override': os.path.basename(py_file_caller.filename) }
-
+                           'file_name_override': os.path.basename(py_file_caller.filename)}
+            
             """ Before to the function execution, log function details."""
-            logger_obj.info(f"Arguments: {formatted_arguments} - Begin function")
+            logger_obj.info(f"Arguments: {formatted_arguments} - Begin function",extra=extra_args)
             try:
                 """ log return value from the function """
                 value = func(self, *args, **kwargs)

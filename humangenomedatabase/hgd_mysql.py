@@ -5,7 +5,7 @@ import sqlalchemy
 import pandas as pd
 
 import humangenomedatabase.hgd_utils as hgd
-from configs import auto_config as cfg
+from humangenomedatabase.configs import auto_config as cfg
 
 class mysqlDataPipe:
     def __init__(self,overwrite=False):
@@ -33,11 +33,14 @@ class mysqlDataPipe:
             print(e)
         
     
-    def execute_query_file(self,q_filepath):
+    def execute_query_file(self,query,from_file=True):
 
         try:
-            with open(q_filepath) as file:
-                query = sqlalchemy.text(file.read())
+            if from_file:
+                with open(query) as file:
+                    query = sqlalchemy.text(file.read())
+                    self.conn.execute(query)
+            else:
                 self.conn.execute(query)
 
         except Exception as e:

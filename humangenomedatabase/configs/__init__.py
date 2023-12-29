@@ -1,8 +1,8 @@
-from configs.config import Local, Production, Staging
+from humangenomedatabase.configs.config import Local, Production, Staging
 import os
 
 
-config_space = os.getenv('CONFIG_SPACE','PRODUCTION')
+config_space = os.getenv('CONFIG_SPACE','LOCAL')
 if config_space:
     if config_space == 'LOCAL':
         auto_config = Local

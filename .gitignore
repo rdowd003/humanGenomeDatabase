@@ -1,4 +1,7 @@
 data/*
 notebooks/*
 .DS_Store
-*/.DS_Store
+**/.DS_Store
+**/__pycache__
+.vscode/*
+test_mysql.py

@@ -1,7 +1,6 @@
 #! /bin/zsh
 
-mkdir -p data/raw/ncbi/
-mkdir -p data/raw/tmp/ && cd data/raw/
+mkdir -p data/raw/ncbi/ && cd data/raw/
 
 echo "Pulling data for NCBI Entrez DB: $1"
 
@@ -14,5 +13,5 @@ else
     #fn=$1
 fi
 
-curl -o tmp/$1.gz https://ftp.ncbi.nlm.nih.gov/gene/DATA/$p.gz
+curl -o ncbi/ncbi_human_$1.gz https://ftp.ncbi.nlm.nih.gov/gene/DATA/$p.gz
 

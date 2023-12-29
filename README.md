@@ -21,16 +21,29 @@ Each pipeline has a set of databases that is a sub-section of those from the ori
 | Kegg      | variant        | variant           | Kegg API          | https://rest.kegg.jp/list/variant/ |
 | Kegg      | module         | module            | Kegg API          | https://rest.kegg.jp/list/module/ |
 
+### Source Connectivity & Lookups
+![Database Structure](docs/database/hgd_database_diagram.png "Human Genome Database")
 
 ### Usage
 
+#### 1. Recreating Database - Using the dump
+If you would like to re-create the MySQL database from a backup dump, follow the instructions below.
+Note: This is the easiest method, but will result in static data. The pipeline is scheduled to run weekly & upload new dump to 
+Github weekly
 
-#### Rebuilding Your Own
+
+#### 2. Recreating Database - Running the pipeline
+If you would like to re-create the MySQL database by running the pipeline yourself, follow the instructions below.
+Note: This is a trickier method, but will allow you to create your own database & refresh when you want to 
 
 
 
+#### 3. Pulling & Exploring Data without Database
+If you are a data scientist, analyst, researcher, or anyone who wants to explore this Human Genome data, follow the steps below
+to pull the data locally into your environment
 
-## Example Usage
+
+
 
 
 ## Roadmap

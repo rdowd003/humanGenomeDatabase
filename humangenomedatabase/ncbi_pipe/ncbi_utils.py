@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 import numpy as np
+import ast
+
 from Bio import Entrez
 
 Entrez.email = os.getenv("ENTREZ_EMAIL")
@@ -21,11 +23,11 @@ blah blah blah
 """
 
 def ftp_script_download(db_table):
-    cmd = f'../scripts/pull_ncbi_ftp.sh {db_table}'
+    cmd = f'humangenomedatabase/ncbi_pipe/pull_ncbi_ftp.sh {db_table}'
     os.system(cmd)
 
-    df = pd.read_csv(f'data/raw/tmp/{db_table}.gz',sep='\t')
-
+    df = pd.read_csv(f'data/raw/ncbi/ncbi_human_{db_table}.gz',sep='\t')
+    
     return df
 
 
@@ -96,8 +98,10 @@ def fetch_data(db_table,webenv,querykey,
     return records
 
 
-def batch_fetch_summary_data(db_table,webenv,querykey,record_count,batch_size=100000):
+def batch_fetch_summary_data(db_table,webenv,querykey,record_count,batch_size=5000):
     final_data = pd.DataFrame()
+    record_count = 5000
+    batch_size = 1000
     for start in range(0, record_count, batch_size):
 
         end = min(record_count, start + batch_size)
@@ -105,8 +109,6 @@ def batch_fetch_summary_data(db_table,webenv,querykey,record_count,batch_size=10
         final_data = pd.concat([final_data,fetched_data],ignore_index=True)
     
     return final_data
-
-
 
 
 
@@ -129,27 +131,28 @@ the compressed format into pandas dataframes for processing.
 """
 
 # 2.1.0 General Gene-Related ###################################################################################
-def process_ftp_gene(db_table,gene_df=pd.DataFrame(),mod_cols={}):
+def process_ftp_gene(db_table,gene_df,mod_cols={}):
+    gene_df.columns = [c.upper() for c in gene_df.columns]
 
     if gene_df.empty:
         gene_df = pd.read_csv(f"data/raw/tmp/{db_table}.gz",sep="\t")
     
     if db_table in ['snp','gene']:
-        new_col_names = {'Name':'tax_id','uid':'Gene_ID'}
+        new_col_names = {'NAME':'TAX_ID','UID':'GENE_ID'}
     else:
-        new_col_names = {'#tax_id':'tax_id','GeneID':'Gene_ID'}
+        new_col_names = {'#TAX_ID':'TAX_ID','GENEID':'GENE_ID'}
         if mod_cols:
             new_col_names.update(mod_cols)
+        
 
         gene_df = gene_df.rename(columns=new_col_names)
 
-        gene_df['Gene_ID'] = 'G'+gene_df['Gene_ID'].astype(str)
+        gene_df['GENE_ID'] = 'G'+gene_df['GENE_ID'].astype(str)
 
         # Cut down to human - homo sapien - only
-        gene_df = gene_df[gene_df['tax_id']==9606].reset_index(drop=True)
-        gene_df = gene_df.drop(columns=['tax_id'])
+        gene_df = gene_df[gene_df['TAX_ID']==9606].reset_index(drop=True)
+        gene_df = gene_df.drop(columns=['TAX_ID'])
 
-    gene_df.columns = [c.upper() for c in gene_df.columns]
 
     return gene_df
 
@@ -203,8 +206,9 @@ def std_gene_type(gi_row):
         return gi_row
 
 
-def process_gene_info(mod_cols):
-    df = process_ftp_gene(db_table="gene_info",mod_cols=mod_cols)
+def process_gene_info(gene_df=pd.DataFrame()):
+    mod_cols = {'FULL_NAME_FROM_NOMENCLATURE_AUTHORITY':'NAME','TYPE_OF_GENE':'GENE_TYPE'}
+    df = process_ftp_gene("gene_info",gene_df,mod_cols=mod_cols)
     df = df.drop(columns=['LOCUSTAG','MODIFICATION_DATE'])
 
     explode_dict = {}
@@ -242,17 +246,20 @@ def process_gene_info(mod_cols):
 
 
 # 2.1.2 FTP: Gene Orthologs #########################################################################################
-def process_gene_orthologs(mod_cols):
-    df = process_ftp_gene(db_table="gene_orthologs",mod_cols=mod_cols)
+def process_gene_orthologs(gene_df=pd.DataFrame()):
+    mod_cols = {'OTHER_GENEID':'OTHER_GENE_ID'}
+    df = process_ftp_gene("gene_orthologs",gene_df,mod_cols)
     df = df.drop(columns=['RELATIONSHIP'])
 
     return {'gene_orthologs':df}
 
 
 # 2.1.3 FTP: Gene2go ###########################################################################################
-def process_gene2go(mod_cols):
-    df = process_ftp_gene(db_table="gene2go",mod_cols=mod_cols)
-    df['PUBMED'] = np.where(df['PUBMED']=='-',np.NaN,df['PUBMED'])
+def process_gene2go(gene_df=pd.DataFrame()):
+    mod_cols = {'PUBMED':'PUBMED_ID'}
+    df = process_ftp_gene("gene2go",gene_df,mod_cols)
+    #df['PUBMED_ID'] = np.where(df['PUBMED_ID']=='-',np.NaN,df['PUBMED_ID'])
+    df = df.drop(columns=['PUBMED_ID'])
     df['GO_ID'] = df['GO_ID'].apply(lambda x: x.replace(':',''))
 
     return {'gene2go':df}
@@ -317,24 +324,25 @@ def process_gene_summary(df):
     df['ChrStop'] = df['ChrStop'].fillna(0)
     df['ChrStart'] = df['ChrStart'].fillna(0)
     df['ChrStart'] = np.where(df['ChrStart']==999999999,0,df['ChrStart'])
-    df['Chromosome'] = df['Chromosome'].apply(lambda x: process_chr(x))
+    df['Chromosome'] = df['Chromosome'].apply(lambda x: process_chr(str(x)))
 
 
     ## Normalize Gene Symbol Aliases
     gene_summary_symbols = df[['GENE_ID','OtherAliases']]
-    gene_summary_symbols = gene_summary_symbols[gene_summary_symbols['OtherAliases']!=''].reset_index(drop=True)
+    gene_summary_symbols = gene_summary_symbols[gene_summary_symbols['OtherAliases']!='']
+    gene_summary_symbols = gene_summary_symbols[gene_summary_symbols['OtherAliases'].notnull()].reset_index(drop=True)
     gene_summary_symbols['OtherAliases'] = gene_summary_symbols['OtherAliases'].apply(lambda x: x.split(', '))
     gene_summary_symbols = gene_summary_symbols.explode("OtherAliases")
     gene_summary_symbols = gene_summary_symbols.rename(columns={'OtherAliases':'GENE_SYMBOL'})
 
     gene_symb_alt = df[['GENE_ID','GENE_SYMBOL','GENE_SYMB_ALT']]
+    gene_symb_alt = gene_symb_alt[gene_symb_alt['GENE_SYMBOL'].notnull()]
     gene_symb_alt['GENE_SYMBOL2'] = gene_symb_alt['GENE_SYMBOL'].apply(lambda x: x.replace('MT-',''))
     gene_symb_alt = gene_symb_alt[gene_symb_alt['GENE_SYMB_ALT']!=gene_symb_alt['GENE_SYMBOL2']].reset_index(drop=True)
     gene_symb_alt = gene_symb_alt.drop(columns=['GENE_SYMBOL','GENE_SYMBOL2'])
     gene_symb_alt = gene_symb_alt.rename(columns={'GENE_SYMB_ALT':'GENE_SYMBOL'})
 
     gene_summary_symbols = pd.concat([gene_summary_symbols,gene_symb_alt],ignore_index=True)
-    gene_summary_symbols['LOOKUP_SOURCE'] = 'gene_summary'
 
     df['GENE_SYMBOL'] = df['GENE_SYMBOL'].replace('',np.NaN)
 
@@ -342,7 +350,6 @@ def process_gene_summary(df):
     gene_summary_omim = df[['GENE_ID','MIM_ID']]
     gene_summary_omim = gene_summary_omim.explode("MIM_ID")
     gene_summary_omim = gene_summary_omim[gene_summary_omim['MIM_ID'].notnull()].reset_index(drop=True)
-    gene_summary_omim['LOOKUP_SOURCE'] = 'gene_summary'
 
     df = df.drop(columns=['LocationHist','Organism','ChrSort','OtherDesignations','GenomicInfo',\
                           'OtherAliases','MIM_ID','ChrAccVer','Status','CurrentID','NomenclatureStatus',\
@@ -364,10 +371,14 @@ def process_gene_summary(df):
 
 # 2.2.2 SNP Summaries ##########################################################################################
 def extract_snp_genes(snp_row):
+    snp_row = ast.literal_eval(snp_row)
     return [d['GENE_ID'] for d in snp_row]
 
 def list_attribute(snp_row):
-    return snp_row.split(',')
+    if pd.isnull(snp_row):
+        return np.NaN
+    else:
+        return snp_row.split(',')
 
 def normalize_snp_column(df,columns,explode_column):
     df_explode = df.copy(deep=True)
@@ -391,12 +402,11 @@ def doc_sum_to_dict(snp_row):
     return d
 
 
-def process_snp_summary(data):
+def process_snp_summary(df):
 
-    df = data.copy(deep=True)
     df = df.rename(columns={"GENES":"GENE_ID"})
 
-    df['SNP_ID'] = 'rs'+df['SNP_ID']
+    df['SNP_ID'] = df['SNP_ID'].apply(lambda x: 'rs'+str(x))
     
     explode_dict = {}
     for column in ['GENE_ID','FXN_CLASS','SS']:
@@ -447,16 +457,13 @@ def process_snp_summary(data):
 db_table_dict = {
     'gene_info':{
         'proc_func': process_gene_info,
-        'mod_cols':{'Full_name_from_nomenclature_authority':'NAME'},
         'schema_file':'sql/gene_info_schema.sql'
     },
     'gene_orthologs':{
-        'proc_func': process_gene_orthologs,
-        'mod_cols':{'Other_GeneID':'Other_Gene_ID'}
+        'proc_func': process_gene_orthologs
     },
     'gene2go':{
-        'proc_func': process_gene2go,
-        'mod_cols':{'PUBMED':'PUBMED_ID'}
+        'proc_func': process_gene2go
     },
     'gene_summary':{
         'proc_func': process_gene_summary,

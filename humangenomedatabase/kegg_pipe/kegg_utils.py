@@ -11,7 +11,6 @@ def api_download_to_df(response_data,columns):
         df = pd.DataFrame([x.split('\t') for x in response_data.split('\n')])
         df = df.iloc[:-1,:]
         df.columns = columns
-        df.columns = [c.upper() for c in df.columns]
 
         return df
 
@@ -45,13 +44,10 @@ def map_pathway_start(pn_row):
 
 def process_pathway(df):
     # Add "path:" to pathway_id to match linking -id pattern
-    df['pathway_id'] = df['pathway_id'].apply(lambda x: x.replace('hsa','P'))
+    df['PATHWAY_ID'] = df['PATHWAY_ID'].apply(lambda x: x.replace('hsa','P'))
 
     # Drop "Human" description repeated after every name
-    df['pathway_name'] = df['pathway_name'].apply(lambda x: x.split(' - ')[0])
-
-    # Save result
-    df.columns = [c.upper() for c in df.columns]
+    df['PATHWAY_NAME'] = df['PATHWAY_NAME'].apply(lambda x: x.split(' - ')[0])
 
     return {'pathway':df}
     
@@ -65,6 +61,7 @@ def gene_name_split(gene_cf_row):
     except:
         x = gene_cf_row.split(';')[0]
     return x
+
 
 def gene_symbol_split(gene_cf_row):
     col_split = gene_cf_row.split(';')
@@ -109,27 +106,26 @@ def extract_chr(kgene_row):
 
 
 def process_gene(df):
-    df['gene_name'] = df['gene_symbol_and_name'].apply(lambda x: gene_name_split(x))
-    df['gene_symbol'] = df['gene_symbol_and_name'].apply(lambda x: gene_symbol_split(x))
-    df['gene_id'] = df['gene_id'].apply(lambda x: x.replace('hsa:','G'))
+    df['GENE_NAME'] = df['GENE_SYMBOL_AND_NAME'].apply(lambda x: gene_name_split(x))
+    df['GENE_SYMBOL'] = df['GENE_SYMBOL_AND_NAME'].apply(lambda x: gene_symbol_split(x))
+    df['GENE_ID'] = df['GENE_ID'].apply(lambda x: x.replace('hsa:','G'))
 
     # Normalize gene-symbol into another look-up table
-    gene_symbols = df.explode('gene_symbol')
-    gene_symbols = gene_symbols[['gene_symbol','gene_id']]
+    gene_symbols = df.explode('GENE_SYMBOL')
+    gene_symbols = gene_symbols[['GENE_SYMBOL','GENE_ID']]
     # Create a primary key for repeating symbols (where gene_id has > 1 symbol)
-    gene_symbols['gene_alias_no'] = gene_symbols.groupby(['gene_id'],as_index=False).cumcount()+1
+    gene_symbols['gene_alias_no'] = gene_symbols.groupby(['GENE_ID'],as_index=False).cumcount()+1
     gene_symbols.columns = [c.upper() for c in gene_symbols.columns]
     gene_symbols = gene_symbols[['GENE_ID','GENE_SYMBOL','GENE_ALIAS_NO']]
-    gene_symbols['lookup_source'] = 'gene'
+    gene_symbols['LOOKUP_SOURCE'] = 'gene'
 
-    df['CHRSTOP'] = df['chromosomal_position'].apply(lambda x: extract_chr_positions(x,pos_type="stop"))
-    df['CHRSTART'] = df['chromosomal_position'].apply(lambda x: extract_chr_positions(x,pos_type="start"))
-    df['CHR_COMPLEMENT'] = np.where(df['chromosomal_position'].str.contains('complement'),1,0)
-    df['chromosomal_position'] = df['chromosomal_position'].astype(str)
-    df['CHROMOSOME'] = df['chromosomal_position'].apply(lambda x: extract_chr(x))
+    df['CHRSTOP'] = df['CHROMOSOMAL_POSITION'].apply(lambda x: extract_chr_positions(x,pos_type="stop"))
+    df['CHRSTART'] = df['CHROMOSOMAL_POSITION'].apply(lambda x: extract_chr_positions(x,pos_type="start"))
+    df['CHR_COMPLEMENT'] = np.where(df['CHROMOSOMAL_POSITION'].str.contains('complement'),1,0)
+    df['CHROMOSOMAL_POSITION'] = df['CHROMOSOMAL_POSITION'].astype(str)
+    df['CHROMOSOME'] = df['CHROMOSOMAL_POSITION'].apply(lambda x: extract_chr(x))
 
     # Clean up
-    df.columns = [c.upper() for c in df.columns]
     df = df.drop(columns=['GENE_SYMBOL','GENE_SYMBOL_AND_NAME','CHROMOSOMAL_POSITION'])
 
     # Note: returns gene table & gene-symbol look up table
@@ -148,21 +144,21 @@ def count_names(disease_row):
 
 def process_disease(df):
     # Add "DS" to disease_id to match linking-id pattern
-    df['disease_id'] = df['disease_id'].apply(lambda x: x.replace('H','DS'))
+    df['DISEASE_ID'] = df['DISEASE_ID'].apply(lambda x: x.replace('H','DS'))
 
     # Fix formatting of disease names to match string-list pattern
-    df['disease_name'] = df['disease_name'].apply(lambda x: list_disease_names(x))
+    df['DISEASE_NAME'] = df['DISEASE_NAME'].apply(lambda x: list_disease_names(x))
 
     # Normalize disease-names into another look-up table
-    disease_names = df.explode('disease_name')
-    disease_names = disease_names[['disease_id','disease_name']]
+    disease_names = df.explode('DISEASE_NAME')
+    disease_names = disease_names[['DISEASE_ID','DISEASE_NAME']]
     disease_names.columns = [c.upper() for c in disease_names.columns]
-    disease_names['lookup_source'] = 'disease'
+    disease_names['LOOKUP_SOURCE'] = 'disease'
 
     #df = df.groupby(['disease_id'],as_index=False)['disease_name'].count().rename(columns={'disease_name':'disease_name_count'})
-    df['disease_name_count'] = df['disease_name'].apply(lambda x: count_names(x))
+    df['DISEASE_NAME_COUNT'] = df['DISEASE_NAME'].apply(lambda x: count_names(x))
 
-    df = df.drop(columns=['disease_name'])
+    df = df.drop(columns=['DISEASE_NAME'])
     df.columns = [c.upper() for c in df.columns]
 
     return {'disease':df,'disease_name_lookup':disease_names}
@@ -174,10 +170,10 @@ def process_disease(df):
 
 def process_variant(df):
     # Gene variant is related to
-    df['variant_version'] = df['variant_id'].apply(lambda x: x.rsplit("v",1)[1])
-    df['variant_id'] = df['variant_id'].apply(lambda x: 'V'+x.rsplit("v",1)[0])
+    df['VARIANT_VERSION'] = df['VARIANT_ID'].apply(lambda x: x.rsplit("v",1)[1])
+    df['VARIANT_ID'] = df['VARIANT_ID'].apply(lambda x: 'V'+x.rsplit("v",1)[0])
     # Gene variant is related to
-    df['gene_symbol'] = df['variant_name'].apply(lambda x: x.split(' ')[0])
+    df['GENE_SYMBOL'] = df['VARIANT_NAME'].apply(lambda x: x.split(' ')[0])
     df.columns = [c.upper() for c in df.columns]
 
     return {'variant':df}
@@ -198,15 +194,15 @@ def clean_mod_name(mod_row):
         return [np.NaN]
     
 
-def process_module(df,return_df=True):
-    df['module_name'] = df['module_name'].apply(lambda x: clean_mod_name(x))
+def process_module(df):
+    df['MODULE_NAME'] = df['MODULE_NAME'].apply(lambda x: clean_mod_name(x))
 
-    mod_names = df.explode('module_name')
+    mod_names = df.explode('MODULE_NAME')
     mod_names.columns = [c.upper() for c in mod_names.columns]
-    mod_names['lookup_source'] = 'module'
+    mod_names['LOOKUP_SOURCE'] = 'module'
 
-    df['module_name_count'] = df['module_name'].apply(lambda x: count_names(x)) # from disease functions
-    df = df.drop(columns=['module_name'])
+    df['MODULE_NAME'] = df['MODULE_NAME'].apply(lambda x: count_names(x)) # from disease functions
+    df = df.drop(columns=['MODULE_NAME'])
 
     df.columns = [c.upper() for c in df.columns]
 
@@ -223,29 +219,29 @@ The tables are named <source>_<target>_lookup. The <source> is used as the priam
 <target> is the joined (right) table. These tables only have the IDs from each link
 """
 
-def process_link(df,db_table,link_df=pd.DataFrame()):
+def process_link(df,db_table):
 
-    if 'pathway_id' in df.columns:
-        df['pathway_id'] = df['pathway_id'].apply(lambda x: x.replace('path:hsa','P'))
-        df['pathway_id'] = df['pathway_id'].apply(lambda x: x.replace('path:map','P'))
+    if 'PATHWAY_ID' in df.columns:
+        df['PATHWAY_ID'] = df['PATHWAY_ID'].apply(lambda x: x.replace('path:hsa','P'))
+        df['PATHWAY_ID'] = df['PATHWAY_ID'].apply(lambda x: x.replace('path:map','P'))
 
-    if 'gene_id' in df.columns:
-        df['gene_id'] = df['gene_id'].apply(lambda x: x.replace('hsa:','G'))
+    if 'GENE_ID' in df.columns:
+        df['GENE_ID'] = df['GENE_ID'].apply(lambda x: x.replace('hsa:','G'))
 
-    if 'disease_id' in df.columns:
-        df['disease_id'] = df['disease_id'].apply(lambda x: x.replace('ds:H','DS'))
+    if 'DISEASE_ID' in df.columns:
+        df['DISEASE_ID'] = df['DISEASE_ID'].apply(lambda x: x.replace('ds:H','DS'))
 
-    if 'module_id' in df.columns:
-        df['module_id'] = df['module_id'].apply(lambda x: x.replace('md:',''))
+    if 'MODULE_ID' in df.columns:
+        df['MODULE_ID'] = df['MODULE_ID'].apply(lambda x: x.replace('md:',''))
 
 
     if db_table == 'gene_ncbi':
-        df['ncbi_gene_id'] = df['ncbi_gene_id'].apply(lambda x: x.replace('ncbi-geneid:','G'))
-        df['gene_id'] = df['gene_id'].apply(lambda x: x.replace('hsa:','G'))
+        df['NCBI_GENE_ID'] = df['NCBI_GENE_ID'].apply(lambda x: x.replace('ncbi-geneid:','G'))
+        df['GENE_ID'] = df['GENE_ID'].apply(lambda x: x.replace('hsa:','G'))
 
     df.columns = [c.upper() for c in df.columns]
 
-    return {db_table:df}
+    return {db_table+'_lookup':df}
 
 
 ################################################################################################################
@@ -267,7 +263,7 @@ db_table_dict = {
     },
     'disease':{
         'url':'https://rest.kegg.jp/list/disease',
-        
+        'columns':['disease_id','disease_name'],
         'proc_func': process_disease
     },
     'variant':{
@@ -276,7 +272,7 @@ db_table_dict = {
         'proc_func': process_variant
     },
     'module':{
-        'url':'https://rest.kegg.jp/list/modul',
+        'url':'https://rest.kegg.jp/list/module',
         'columns':['module_id','module_name'],
         'proc_func': process_module
     },
