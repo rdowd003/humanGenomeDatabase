@@ -23,7 +23,7 @@ blah blah blah
 """
 
 def ftp_script_download(db_table):
-    cmd = f'humangenomedatabase/ncbi_pipe/pull_ncbi_ftp.sh {db_table}'
+    cmd = f'humangenomedatabase/source_pipes/ncbi_pipe/pull_ncbi_ftp.sh {db_table}'
     os.system(cmd)
 
     df = pd.read_csv(f'data/raw/ncbi/ncbi_human_{db_table}.gz',sep='\t')

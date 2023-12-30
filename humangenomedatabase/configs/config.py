@@ -9,12 +9,12 @@ class Common(object):
     
     AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
     AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
-    S3_PATH = "human-genome-data/database/"
+    S3_BUCKET = "human-genome-data/database"
 
 class Local(Common):
     IN_MEM = False
     LOG_DIR = "local/"
-    SAVELOC = True
+    SAVELOC = False
 
     RDS_DB = "human-genome-database"
     DB_USER = os.getenv('HGD_USER')

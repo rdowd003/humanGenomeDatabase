@@ -5,7 +5,7 @@ import humangenomedatabase.hgd_pipe as hgdp
 # Run full pipeline
 parser = argparse.ArgumentParser(description='Human Genome Database Refresher Pipeline')
 
-parser.add_argument('-s','--source',required=True,choices=['kegg','ncbi'],\
+parser.add_argument('-s','--sources',required=False,nargs='*',default=[],choices=['kegg','ncbi','database'],\
                     help="Data source Kegg:('kegg') or NCBI ('ncbi'))")
 
 parser.add_argument('-dbt','--db_tables',required=False,nargs='*',default=None,\
@@ -18,15 +18,12 @@ args = vars(parser.parse_args())
 
 
 create_database = args['create_database']
-pipetype = args['source']
+pipetypes = args['sources']
 db_tables = args['db_tables']
 
+
 # If no source or db_table are given, then it will run a FULL refresh of all sources
-hgd_pipeline = hgdp.humanGenomeDataPipe(pipetype=pipetype)
-
-if create_database:
-    hgd_pipeline.create_database()
-
-if db_tables:
-    hgd_pipeline.hgd_table_refresh(db_tables)
+for pipetype in pipetypes:
+    hgd_pipeline = hgdp.humanGenomeDataPipe(pipetype=pipetype)
+    hgd_pipeline.hgd_table_refresh()
 

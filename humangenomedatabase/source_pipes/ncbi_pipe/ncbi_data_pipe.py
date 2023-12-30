@@ -1,6 +1,6 @@
-import humangenomedatabase.ncbi_pipe.ncbi_utils as ncbi
-import humangenomedatabase.hgd_utils as hgd
-from humangenomedatabase.hgd_logging import log
+import humangenomedatabase.source_pipes.ncbi_pipe.ncbi_utils as ncbi
+import humangenomedatabase.utils.hgd_utils as hgd
+from humangenomedatabase.utils.hgd_logging import log
 
 
 class ncbiDataPipe:

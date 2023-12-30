@@ -1578,3 +1578,193 @@
 2023-12-29 14:36:28,874 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene2go': 'data/processed/ncbi/ncbi_human_gene2go.csv'}
 2023-12-29 14:36:28,877 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
 2023-12-29 14:36:28,878 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:19:52,531 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'kegg' - Begin function
+2023-12-29 17:19:52,531 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:19:52,533 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'pathway', overwrite=True - Begin function
+2023-12-29 17:19:52,535 - INFO       - hgd_pipe.py - transform_table - Arguments: 'pathway_module', 'data/raw/kegg/kegg_human_pathway_module.csv' - Begin function
+2023-12-29 17:19:52,535 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: Table pathway_module not found - please extract first or update data_dict with location of file
+2023-12-29 17:19:52,535 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: Table pathway_module not found - please extract first or update data_dict with location of file
+2023-12-29 17:20:37,442 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'kegg' - Begin function
+2023-12-29 17:20:37,442 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:20:37,443 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'pathway', overwrite=True - Begin function
+2023-12-29 17:20:37,445 - INFO       - hgd_pipe.py - extract_table - Arguments: 'pathway' - Begin function
+2023-12-29 17:20:37,446 - INFO       - hgd_pipe.py - extract_one - Arguments: 'pathway' - Begin function
+2023-12-29 17:20:39,196 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: type object 'Local' has no attribute 'S3_BUCKET'
+2023-12-29 17:20:39,197 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: type object 'Local' has no attribute 'S3_BUCKET'
+2023-12-29 17:20:39,197 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: type object 'Local' has no attribute 'S3_BUCKET'
+2023-12-29 17:21:40,734 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'kegg' - Begin function
+2023-12-29 17:21:40,734 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:21:40,736 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'pathway', overwrite=True - Begin function
+2023-12-29 17:21:40,737 - INFO       - hgd_pipe.py - extract_table - Arguments: 'pathway' - Begin function
+2023-12-29 17:21:40,739 - INFO       - hgd_pipe.py - extract_one - Arguments: 'pathway' - Begin function
+2023-12-29 17:21:42,975 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway': 'data/raw/kegg/kegg_human_pathway.csv'}
+2023-12-29 17:21:42,976 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway': 'data/raw/kegg/kegg_human_pathway.csv'}
+2023-12-29 17:21:43,016 - INFO       - hgd_pipe.py - transform_table - Arguments: 'pathway', 'data/raw/kegg/kegg_human_pathway.csv' - Begin function
+2023-12-29 17:21:43,531 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway': 'data/processed/kegg/kegg_human_pathway.csv'}
+2023-12-29 17:21:43,532 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:30:50,529 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'kegg' - Begin function
+2023-12-29 17:30:50,529 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:30:50,531 - INFO       - test.py - extract_table - Arguments: 'disease' - Begin function
+2023-12-29 17:30:50,532 - INFO       - hgd_pipe.py - extract_one - Arguments: 'disease' - Begin function
+2023-12-29 17:30:53,849 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'disease': 's3://human-genome-data/database//data/raw/kegg/kegg_human_disease.csv'}
+2023-12-29 17:30:53,849 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'disease': 's3://human-genome-data/database//data/raw/kegg/kegg_human_disease.csv'}
+2023-12-29 17:33:32,661 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'kegg' - Begin function
+2023-12-29 17:33:32,661 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:33:32,662 - INFO       - test.py - extract_table - Arguments: 'disease' - Begin function
+2023-12-29 17:33:32,664 - INFO       - hgd_pipe.py - extract_one - Arguments: 'disease' - Begin function
+2023-12-29 17:33:34,997 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'disease': 's3://human-genome-data/database/data/raw/kegg/kegg_human_disease.csv'}
+2023-12-29 17:33:34,997 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'disease': 's3://human-genome-data/database/data/raw/kegg/kegg_human_disease.csv'}
+2023-12-29 17:35:16,300 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'kegg' - Begin function
+2023-12-29 17:35:16,301 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:35:16,302 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'pathway', overwrite=True - Begin function
+2023-12-29 17:35:16,304 - INFO       - hgd_pipe.py - extract_table - Arguments: 'pathway' - Begin function
+2023-12-29 17:35:16,305 - INFO       - hgd_pipe.py - extract_one - Arguments: 'pathway' - Begin function
+2023-12-29 17:35:18,153 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway.csv'}
+2023-12-29 17:35:18,153 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway.csv'}
+2023-12-29 17:35:18,190 - INFO       - hgd_pipe.py - transform_table - Arguments: 'pathway', 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway.csv' - Begin function
+2023-12-29 17:35:18,754 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway': 's3://human-genome-data/database/data/processed/kegg/kegg_human_pathway.csv'}
+2023-12-29 17:35:18,755 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:35:18,763 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene', overwrite=True - Begin function
+2023-12-29 17:35:18,768 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene' - Begin function
+2023-12-29 17:35:18,772 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene' - Begin function
+2023-12-29 17:35:31,603 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene': 's3://human-genome-data/database/data/raw/kegg/kegg_human_gene.csv'}
+2023-12-29 17:35:31,604 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene': 's3://human-genome-data/database/data/raw/kegg/kegg_human_gene.csv'}
+2023-12-29 17:35:31,613 - INFO       - hgd_pipe.py - transform_table - Arguments: 'gene', 's3://human-genome-data/database/data/raw/kegg/kegg_human_gene.csv' - Begin function
+2023-12-29 17:35:39,157 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene': 's3://human-genome-data/database/data/processed/kegg/kegg_human_gene.csv', 'gene_symbol_lookup': 's3://human-genome-data/database/data/processed/kegg/kegg_human_gene_symbol_lookup.csv'}
+2023-12-29 17:35:39,158 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:20,180 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'kegg' - Begin function
+2023-12-29 17:40:20,180 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:20,182 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'pathway', overwrite=True - Begin function
+2023-12-29 17:40:20,183 - INFO       - hgd_pipe.py - extract_table - Arguments: 'pathway' - Begin function
+2023-12-29 17:40:20,185 - INFO       - hgd_pipe.py - extract_one - Arguments: 'pathway' - Begin function
+2023-12-29 17:40:22,016 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway.csv'}
+2023-12-29 17:40:22,016 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway.csv'}
+2023-12-29 17:40:22,043 - INFO       - hgd_pipe.py - transform_table - Arguments: 'pathway', 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway.csv' - Begin function
+2023-12-29 17:40:22,572 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway': 's3://human-genome-data/database/data/processed/kegg/kegg_human_pathway.csv'}
+2023-12-29 17:40:22,573 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:22,579 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene', overwrite=True - Begin function
+2023-12-29 17:40:22,583 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene' - Begin function
+2023-12-29 17:40:22,587 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene' - Begin function
+2023-12-29 17:40:34,409 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene': 's3://human-genome-data/database/data/raw/kegg/kegg_human_gene.csv'}
+2023-12-29 17:40:34,409 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene': 's3://human-genome-data/database/data/raw/kegg/kegg_human_gene.csv'}
+2023-12-29 17:40:34,415 - INFO       - hgd_pipe.py - transform_table - Arguments: 'gene', 's3://human-genome-data/database/data/raw/kegg/kegg_human_gene.csv' - Begin function
+2023-12-29 17:40:40,511 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene': 's3://human-genome-data/database/data/processed/kegg/kegg_human_gene.csv', 'gene_symbol_lookup': 's3://human-genome-data/database/data/processed/kegg/kegg_human_gene_symbol_lookup.csv'}
+2023-12-29 17:40:40,512 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:40,518 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'disease', overwrite=True - Begin function
+2023-12-29 17:40:40,522 - INFO       - hgd_pipe.py - extract_table - Arguments: 'disease' - Begin function
+2023-12-29 17:40:40,526 - INFO       - hgd_pipe.py - extract_one - Arguments: 'disease' - Begin function
+2023-12-29 17:40:42,102 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'disease': 's3://human-genome-data/database/data/raw/kegg/kegg_human_disease.csv'}
+2023-12-29 17:40:42,102 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'disease': 's3://human-genome-data/database/data/raw/kegg/kegg_human_disease.csv'}
+2023-12-29 17:40:42,110 - INFO       - hgd_pipe.py - transform_table - Arguments: 'disease', 's3://human-genome-data/database/data/raw/kegg/kegg_human_disease.csv' - Begin function
+2023-12-29 17:40:43,104 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'disease': 's3://human-genome-data/database/data/processed/kegg/kegg_human_disease.csv', 'disease_name_lookup': 's3://human-genome-data/database/data/processed/kegg/kegg_human_disease_name_lookup.csv'}
+2023-12-29 17:40:43,105 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:43,113 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'variant', overwrite=True - Begin function
+2023-12-29 17:40:43,119 - INFO       - hgd_pipe.py - extract_table - Arguments: 'variant' - Begin function
+2023-12-29 17:40:43,123 - INFO       - hgd_pipe.py - extract_one - Arguments: 'variant' - Begin function
+2023-12-29 17:40:44,363 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'variant': 's3://human-genome-data/database/data/raw/kegg/kegg_human_variant.csv'}
+2023-12-29 17:40:44,363 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'variant': 's3://human-genome-data/database/data/raw/kegg/kegg_human_variant.csv'}
+2023-12-29 17:40:44,370 - INFO       - hgd_pipe.py - transform_table - Arguments: 'variant', 's3://human-genome-data/database/data/raw/kegg/kegg_human_variant.csv' - Begin function
+2023-12-29 17:40:44,841 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'variant': 's3://human-genome-data/database/data/processed/kegg/kegg_human_variant.csv'}
+2023-12-29 17:40:44,841 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:44,849 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'module', overwrite=True - Begin function
+2023-12-29 17:40:44,854 - INFO       - hgd_pipe.py - extract_table - Arguments: 'module' - Begin function
+2023-12-29 17:40:44,858 - INFO       - hgd_pipe.py - extract_one - Arguments: 'module' - Begin function
+2023-12-29 17:40:46,242 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'module': 's3://human-genome-data/database/data/raw/kegg/kegg_human_module.csv'}
+2023-12-29 17:40:46,242 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'module': 's3://human-genome-data/database/data/raw/kegg/kegg_human_module.csv'}
+2023-12-29 17:40:46,247 - INFO       - hgd_pipe.py - transform_table - Arguments: 'module', 's3://human-genome-data/database/data/raw/kegg/kegg_human_module.csv' - Begin function
+2023-12-29 17:40:46,920 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'module': 's3://human-genome-data/database/data/processed/kegg/kegg_human_module.csv', 'module_name_lookup': 's3://human-genome-data/database/data/processed/kegg/kegg_human_module_name_lookup.csv'}
+2023-12-29 17:40:46,920 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:46,927 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'pathway_gene', overwrite=True - Begin function
+2023-12-29 17:40:46,932 - INFO       - hgd_pipe.py - extract_table - Arguments: 'pathway_gene' - Begin function
+2023-12-29 17:40:46,937 - INFO       - hgd_pipe.py - extract_one - Arguments: 'pathway_gene' - Begin function
+2023-12-29 17:40:51,401 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway_gene': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway_gene.csv'}
+2023-12-29 17:40:51,401 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway_gene': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway_gene.csv'}
+2023-12-29 17:40:51,408 - INFO       - hgd_pipe.py - transform_table - Arguments: 'pathway_gene', 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway_gene.csv' - Begin function
+2023-12-29 17:40:52,702 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway_gene_lookup': 's3://human-genome-data/database/data/processed/kegg/kegg_human_pathway_gene_lookup.csv'}
+2023-12-29 17:40:52,703 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:52,711 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'pathway_module', overwrite=True - Begin function
+2023-12-29 17:40:52,717 - INFO       - hgd_pipe.py - extract_table - Arguments: 'pathway_module' - Begin function
+2023-12-29 17:40:52,721 - INFO       - hgd_pipe.py - extract_one - Arguments: 'pathway_module' - Begin function
+2023-12-29 17:40:53,968 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway_module': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway_module.csv'}
+2023-12-29 17:40:53,969 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway_module': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway_module.csv'}
+2023-12-29 17:40:53,977 - INFO       - hgd_pipe.py - transform_table - Arguments: 'pathway_module', 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway_module.csv' - Begin function
+2023-12-29 17:40:54,409 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway_module_lookup': 's3://human-genome-data/database/data/processed/kegg/kegg_human_pathway_module_lookup.csv'}
+2023-12-29 17:40:54,410 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:54,418 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'pathway_disease', overwrite=True - Begin function
+2023-12-29 17:40:54,422 - INFO       - hgd_pipe.py - extract_table - Arguments: 'pathway_disease' - Begin function
+2023-12-29 17:40:54,426 - INFO       - hgd_pipe.py - extract_one - Arguments: 'pathway_disease' - Begin function
+2023-12-29 17:40:55,439 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway_disease': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway_disease.csv'}
+2023-12-29 17:40:55,440 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway_disease': 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway_disease.csv'}
+2023-12-29 17:40:55,446 - INFO       - hgd_pipe.py - transform_table - Arguments: 'pathway_disease', 's3://human-genome-data/database/data/raw/kegg/kegg_human_pathway_disease.csv' - Begin function
+2023-12-29 17:40:55,851 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'pathway_disease_lookup': 's3://human-genome-data/database/data/processed/kegg/kegg_human_pathway_disease_lookup.csv'}
+2023-12-29 17:40:55,852 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:55,859 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene_disease', overwrite=True - Begin function
+2023-12-29 17:40:55,864 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene_disease' - Begin function
+2023-12-29 17:40:55,869 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene_disease' - Begin function
+2023-12-29 17:40:57,538 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_disease': 's3://human-genome-data/database/data/raw/kegg/kegg_human_gene_disease.csv'}
+2023-12-29 17:40:57,538 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_disease': 's3://human-genome-data/database/data/raw/kegg/kegg_human_gene_disease.csv'}
+2023-12-29 17:40:57,545 - INFO       - hgd_pipe.py - transform_table - Arguments: 'gene_disease', 's3://human-genome-data/database/data/raw/kegg/kegg_human_gene_disease.csv' - Begin function
+2023-12-29 17:40:58,139 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_disease_lookup': 's3://human-genome-data/database/data/processed/kegg/kegg_human_gene_disease_lookup.csv'}
+2023-12-29 17:40:58,139 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:40:58,148 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'ncbi_gene', overwrite=True - Begin function
+2023-12-29 17:40:58,153 - INFO       - hgd_pipe.py - extract_table - Arguments: 'ncbi_gene' - Begin function
+2023-12-29 17:40:58,158 - INFO       - hgd_pipe.py - extract_one - Arguments: 'ncbi_gene' - Begin function
+2023-12-29 17:41:02,029 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'ncbi_gene': 's3://human-genome-data/database/data/raw/kegg/kegg_human_ncbi_gene.csv'}
+2023-12-29 17:41:02,030 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'ncbi_gene': 's3://human-genome-data/database/data/raw/kegg/kegg_human_ncbi_gene.csv'}
+2023-12-29 17:41:02,036 - INFO       - hgd_pipe.py - transform_table - Arguments: 'ncbi_gene', 's3://human-genome-data/database/data/raw/kegg/kegg_human_ncbi_gene.csv' - Begin function
+2023-12-29 17:41:03,430 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'ncbi_gene_lookup': 's3://human-genome-data/database/data/processed/kegg/kegg_human_ncbi_gene_lookup.csv'}
+2023-12-29 17:41:03,431 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:42:17,251 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'ncbi' - Begin function
+2023-12-29 17:42:17,251 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:42:17,253 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene_info', overwrite=True - Begin function
+2023-12-29 17:42:17,254 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene_info' - Begin function
+2023-12-29 17:42:17,256 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene_info' - Begin function
+2023-12-29 17:43:10,934 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_info': 's3://human-genome-data/database/data/raw/ncbi/ncbi_human_gene_info.csv'}
+2023-12-29 17:43:10,935 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_info': 's3://human-genome-data/database/data/raw/ncbi/ncbi_human_gene_info.csv'}
+2023-12-29 17:43:10,972 - INFO       - hgd_pipe.py - transform_table - Arguments: 'gene_info', 's3://human-genome-data/database/data/raw/ncbi/ncbi_human_gene_info.csv' - Begin function
+2023-12-29 17:44:14,793 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_info': 's3://human-genome-data/database/data/processed/ncbi/ncbi_human_gene_info.csv', 'gene_info_symbol_lookup': 's3://human-genome-data/database/data/processed/ncbi/ncbi_human_gene_info_symbol_lookup.csv', 'gene_info_dbxref_lookup': 's3://human-genome-data/database/data/processed/ncbi/ncbi_human_gene_info_dbxref_lookup.csv', 'gene_info_otherdesig_lookup': 's3://human-genome-data/database/data/processed/ncbi/ncbi_human_gene_info_otherdesig_lookup.csv', 'gene_info_feature_lookup': 's3://human-genome-data/database/data/processed/ncbi/ncbi_human_gene_info_feature_lookup.csv'}
+2023-12-29 17:44:14,794 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:44:14,799 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene_orthologs', overwrite=True - Begin function
+2023-12-29 17:44:14,802 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene_orthologs' - Begin function
+2023-12-29 17:44:14,805 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene_orthologs' - Begin function
+2023-12-29 17:51:40,014 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_orthologs': 's3://human-genome-data/database/data/raw/ncbi/ncbi_human_gene_orthologs.csv'}
+2023-12-29 17:51:40,014 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_orthologs': 's3://human-genome-data/database/data/raw/ncbi/ncbi_human_gene_orthologs.csv'}
+2023-12-29 17:51:40,017 - INFO       - hgd_pipe.py - transform_table - Arguments: 'gene_orthologs', 's3://human-genome-data/database/data/raw/ncbi/ncbi_human_gene_orthologs.csv' - Begin function
+2023-12-29 17:56:19,823 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_orthologs': 's3://human-genome-data/database/data/processed/ncbi/ncbi_human_gene_orthologs.csv'}
+2023-12-29 17:56:19,824 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 17:56:19,827 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene2go', overwrite=True - Begin function
+2023-12-29 17:56:19,829 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene2go' - Begin function
+2023-12-29 17:56:19,831 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene2go' - Begin function
+2023-12-29 17:56:30,375 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 17:56:30,375 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 17:56:30,375 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 18:06:52,983 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'ncbi' - Begin function
+2023-12-29 18:06:52,983 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 18:06:52,985 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene2go', overwrite=True - Begin function
+2023-12-29 18:06:52,987 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene2go' - Begin function
+2023-12-29 18:06:52,989 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene2go' - Begin function
+2023-12-29 18:07:15,525 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 18:07:15,526 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 18:07:15,526 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 18:08:02,625 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'ncbi' - Begin function
+2023-12-29 18:08:02,625 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 18:08:02,627 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene2go', overwrite=True - Begin function
+2023-12-29 18:08:02,628 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene2go' - Begin function
+2023-12-29 18:08:02,630 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene2go' - Begin function
+2023-12-29 18:21:08,490 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 18:21:08,491 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 18:21:08,491 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 18:26:21,137 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'ncbi' - Begin function
+2023-12-29 18:26:21,138 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 18:26:21,139 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene2go', overwrite=True - Begin function
+2023-12-29 18:27:07,508 - INFO       - hgd_pipe.py - transform_table - Arguments: 'gene2go', 'data/raw/ncbi/ncbi_human_gene2go.gz' - Begin function
+2023-12-29 18:27:08,415 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: Table gene2go not found - please extract first or update data_dict with location of file
+2023-12-29 18:27:08,415 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: Table gene2go not found - please extract first or update data_dict with location of file
+2023-12-29 18:27:36,679 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'ncbi' - Begin function
+2023-12-29 18:27:36,679 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-29 18:27:36,681 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene2go', overwrite=True - Begin function
+2023-12-29 18:27:36,683 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene2go' - Begin function
+2023-12-29 18:27:36,684 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene2go' - Begin function
+2023-12-29 18:41:09,566 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 18:41:09,566 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-29 18:41:09,566 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 

@@ -4,7 +4,6 @@ import pymysql
 import sqlalchemy
 import pandas as pd
 
-import humangenomedatabase.hgd_utils as hgd
 from humangenomedatabase.configs import auto_config as cfg
 
 class mysqlDataPipe:
@@ -15,7 +14,7 @@ class mysqlDataPipe:
         #self.conn = pymysql.connect(cfg.DB_HOST, cfg.DB_USER, cfg.DB_PASS, local_infile=True)
         conn_string = f"mysql+mysqlconnector://[{cfg.DB_USER}]:[{cfg.DB_PASS}]@[{cfg.DB_HOST}]:[3306]/[{cfg.RDS_DB}]"
         self.conn = sqlalchemy.create_engine(conn_string, echo=False)
-    
+
 
     def write_data(self,db_table,db_table_df,overwrite,chunksize=None):
         if overwrite:
@@ -33,7 +32,7 @@ class mysqlDataPipe:
             print(e)
         
     
-    def execute_query_file(self,query,from_file=True):
+    def execute_query(self,query,from_file=True):
 
         try:
             if from_file:

@@ -6,11 +6,11 @@ from multiprocessing import Pool
 import pyspark.sql.functions as F
 
 from humangenomedatabase.configs import auto_config as cfg
-import humangenomedatabase.hgd_utils as hgd
-import humangenomedatabase.kegg_pipe.kegg_data_pipe  as kegg
-import humangenomedatabase.ncbi_pipe.ncbi_data_pipe as ncbi
-import humangenomedatabase.hgd_mysql as hgdm
-from humangenomedatabase.hgd_logging import log,get_logger
+import humangenomedatabase.source_pipes.kegg_pipe.kegg_data_pipe  as kegg
+import humangenomedatabase.source_pipes.ncbi_pipe.ncbi_data_pipe as ncbi
+import humangenomedatabase.utils.hgd_utils as hgd
+import humangenomedatabase.utils.hgd_mysql as hgdm
+from humangenomedatabase.utils.hgd_logging import log,get_logger
 
 
 class humanGenomeDataPipe:
@@ -70,9 +70,10 @@ class humanGenomeDataPipe:
             set via supporting functions
     """
     
-    def __init__(self,pipetype="kegg"):
+    def __init__(self,pipetype="kegg",auto_extract=False):
         self.pipetype = pipetype
         self.data_dict = {"raw":{},"processed":{}}
+        self.auto_extract = auto_extract
 
         # Logging details
         self.log_file_name = 'hgd_pipe_log'
@@ -110,11 +111,17 @@ class humanGenomeDataPipe:
             self.datapipe = ncbi.ncbiDataPipe(cfg)
 
 
-    def create_database(self):
+    def create_database(self,structure_only=False):
+
+        if structure_only:
+            file_name = 'hgd_database_structure.sql'
+        else:
+            file_name = 'hgd_database.sql'
+
         self.logger.info("Creating database & all schemas for Human Genome Database (human_genome_database)")
         mysqlpipe = hgdm.mysqlDataPipe()
-        filepath = "sql/models/hgd_database.sql"
-        mysqlpipe.execute_query_file(filepath)
+        file_path = f"sql/models/{file_name}.sql"
+        mysqlpipe.execute_query(file_path,from_file=True)
         mysqlpipe.close()
 
     
@@ -125,6 +132,7 @@ class humanGenomeDataPipe:
     @log
     def extract_table(self,db_table,multi_extract=False):
         if not multi_extract:
+            print(f"Extracting data for database: {db_table}")
             raw_data_dict = self.datapipe.extract_one(db_table)
         else:
             pool = Pool(num_processes=self.ncpu_max)
@@ -147,6 +155,7 @@ class humanGenomeDataPipe:
     
         # All final processing functions return dictionary of {db_table:dataframe}
         # TODO - Find a better way to handle this!! (link processing needs db_table)
+        print(f"Processing data for db_table: {db_table}")
         if self.datapipe.db_table_dict[db_table]['proc_func'].__name__ == "process_link":
             proc_data_dict = proc_func(raw_data,db_table)
         else:
@@ -184,9 +193,9 @@ class humanGenomeDataPipe:
     ######################################################################################################################################## 
     
     @log
-    def single_table_refresh(self,db_table,auto_extract=False,load_db=False,overwrite=False):
+    def single_table_refresh(self,db_table,load_db=False,overwrite=False):
         # Extract dataset (optionally)
-        if auto_extract:
+        if self.auto_extract:
             self.data_dict["raw"] = self.extract_table(db_table)
         else:
             # If not re_extract, use what is in raw folder
@@ -197,7 +206,8 @@ class humanGenomeDataPipe:
             filtered_filenames = [fn for fn in onlyfiles if pattern.search(fn)]
 
             if not filtered_filenames:
-                self.single_table_refresh(db_table,auto_extract=True,load_db=load_db,overwrite=overwrite)
+                self.auto_extract = True
+                self.single_table_refresh(db_table,load_db=load_db,overwrite=overwrite)
 
             self.data_dict["raw"] = {fn.replace(f'{self.pipetype}_human_','').replace(file_tpye,''):raw_path+fn for fn in filtered_filenames}
         

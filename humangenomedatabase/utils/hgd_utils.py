@@ -22,16 +22,16 @@ def load_data(db_table,table_type,source):
     else:
          # Load from S3
         bucket = cfg.S3_BUCKET
-        s3_filepath = f"s3://{bucket}/{file_path}"
-        return pd.read_csv(s3_filepath)
+        file_path = f"s3://{bucket}/{file_path}"
+        if db_table in ['gene2go','gene_summary','snp_summary']:
+            file_path = file_path.replace('csv','gz')
+            
+        return pd.read_csv(file_path)
 
 
-def save_data(df,db_table,source,table_type,compressed=False):
+def save_data(df,db_table,source,table_type):
     file_name = f"{source}_human_{db_table}.csv"
     file_path = f"data/{table_type}/{source}/"
-
-    if compressed:
-        file_path = file_path.replace('csv','gz')
 
     print(f"Saving file to path: {file_path}")
     if cfg.SAVELOC:
@@ -42,8 +42,11 @@ def save_data(df,db_table,source,table_type,compressed=False):
     else:
         file_path += file_name
         bucket = cfg.S3_BUCKET
-        s3_filepath = f"s3://{bucket}/{file_path}"
-        df.to_csv(s3_filepath,index=False)
+        file_path = f"s3://{bucket}/{file_path}"
+        if db_table in ['gene2go','gene_summary','snp_summary']:
+            df.to_csv(file_path,index=False,compression='gzip')
+        else:
+            df.to_csv(file_path,index=False)
     
     return file_path
 

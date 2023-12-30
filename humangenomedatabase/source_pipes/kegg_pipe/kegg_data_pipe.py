@@ -1,8 +1,8 @@
 import requests
 
-import humangenomedatabase.kegg_pipe.kegg_utils as kegg
-import humangenomedatabase.hgd_utils as hgd
-from humangenomedatabase.hgd_logging import log
+import humangenomedatabase.source_pipes.kegg_pipe.kegg_utils as kegg
+import humangenomedatabase.utils.hgd_utils as hgd
+from humangenomedatabase.utils.hgd_logging import log
 
 class keggDataPipe:
     def __init__(self,config):

@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  humangenomedatabase:
+    image: humangenomedatabase
+    build:
+      context: .
+      dockerfile: ./Dockerfile
