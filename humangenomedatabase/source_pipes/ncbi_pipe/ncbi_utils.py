@@ -23,7 +23,7 @@ blah blah blah
 """
 
 def ftp_script_download(db_table):
-    cmd = f'humangenomedatabase/source_pipes/ncbi_pipe/pull_ncbi_ftp.sh {db_table}'
+    cmd = f'humangenomedatabase/source_pipes/ncbi_pipe/scripts/pull_ncbi_ftp.sh {db_table}'
     os.system(cmd)
 
     df = pd.read_csv(f'data/raw/ncbi/ncbi_human_{db_table}.gz',sep='\t')
@@ -100,8 +100,6 @@ def fetch_data(db_table,webenv,querykey,
 
 def batch_fetch_summary_data(db_table,webenv,querykey,record_count,batch_size=5000):
     final_data = pd.DataFrame()
-    record_count = 5000
-    batch_size = 1000
     for start in range(0, record_count, batch_size):
 
         end = min(record_count, start + batch_size)
@@ -305,35 +303,35 @@ def process_chr(gene_row):
     
 
 def process_gene_summary(df):
-    df = df.rename(columns={'uid':'GENE_ID','Mim':'MIM_ID',
-                            'NomenclatureName':'GENE_NAME',
-                            'Name':'GENE_SYMB_ALT',
-                            'GeneWeight':'GENE_WEIGHT',
-                            'MapLocation':'MAP_LOCATION'})
+    df = df.rename(columns={'UID':'GENE_ID','MIM':'MIM_ID',
+                            'NOMENCLATURENAME':'GENE_NAME',
+                            'NAME':'GENE_SYMB_ALT',
+                            'GENEWEIGHT':'GENE_WEIGHT',
+                            'MAPLOCATION':'MAP_LOCATION'})
     df['GENE_ID'] = 'G'+df['GENE_ID'].astype(str)
 
-    for gi_attr in ['ChrStart','ChrStop','ExonCount','ChrAccVer']:
-        df[gi_attr] = df['GenomicInfo'].apply(lambda x: access_chrom_attr(x,gi_attr))
+    for gi_attr in ['CHRSTART', 'CHRSTOP', 'EXONCOUNT', 'CHRACCVER']:
+        df[gi_attr] = df['GENOMICINFO'].apply(lambda x: access_chrom_attr(x,gi_attr))
     
-    df['GENE_SYMBOL'] = np.where(df['NomenclatureSymbol']!='',df['NomenclatureSymbol'],'')
-    df['NomenclatureStatus'] = np.where(df['NomenclatureStatus']=='Official',1,0)
+    df['GENE_SYMBOL'] = np.where(df['NOMENCLATURESYMBOL']!='',df['NOMENCLATURESYMBOL'],'')
+    df['NOMENCLATURESTATUS'] = np.where(df['NOMENCLATURESTATUS']=='Official',1,0)
 
     df['GENE_NAME'] = df['GENE_NAME'].replace('',np.NaN)
-    df['Summary'] = df['Summary'].replace('',np.NaN)
+    df['SUMMARY'] = df['SUMMARY'].replace('',np.NaN)
     df['MAP_LOCATION'] = df['MAP_LOCATION'].replace('',np.NaN)
-    df['ChrStop'] = df['ChrStop'].fillna(0)
-    df['ChrStart'] = df['ChrStart'].fillna(0)
-    df['ChrStart'] = np.where(df['ChrStart']==999999999,0,df['ChrStart'])
-    df['Chromosome'] = df['Chromosome'].apply(lambda x: process_chr(str(x)))
+    df['CHRSTOP'] = df['CHRSTOP'].fillna(0)
+    df['CHRSTART'] = df['CHRSTART'].fillna(0)
+    df['CHRSTART'] = np.where(df['CHRSTART']==999999999,0,df['CHRSTART'])
+    df['CHROMOSOME'] = df['CHROMOSOME'].apply(lambda x: process_chr(str(x)))
 
 
     ## Normalize Gene Symbol Aliases
-    gene_summary_symbols = df[['GENE_ID','OtherAliases']]
-    gene_summary_symbols = gene_summary_symbols[gene_summary_symbols['OtherAliases']!='']
-    gene_summary_symbols = gene_summary_symbols[gene_summary_symbols['OtherAliases'].notnull()].reset_index(drop=True)
-    gene_summary_symbols['OtherAliases'] = gene_summary_symbols['OtherAliases'].apply(lambda x: x.split(', '))
-    gene_summary_symbols = gene_summary_symbols.explode("OtherAliases")
-    gene_summary_symbols = gene_summary_symbols.rename(columns={'OtherAliases':'GENE_SYMBOL'})
+    gene_summary_symbols = df[['GENE_ID','OTHERALIASES']]
+    gene_summary_symbols = gene_summary_symbols[gene_summary_symbols['OTHERALIASES']!='']
+    gene_summary_symbols = gene_summary_symbols[gene_summary_symbols['OTHERALIASES'].notnull()].reset_index(drop=True)
+    gene_summary_symbols['OTHERALIASES'] = gene_summary_symbols['OTHERALIASES'].apply(lambda x: x.split(', '))
+    gene_summary_symbols = gene_summary_symbols.explode("OTHERALIASES")
+    gene_summary_symbols = gene_summary_symbols.rename(columns={'OTHERALIASES':'GENE_SYMBOL'})
 
     gene_symb_alt = df[['GENE_ID','GENE_SYMBOL','GENE_SYMB_ALT']]
     gene_symb_alt = gene_symb_alt[gene_symb_alt['GENE_SYMBOL'].notnull()]
@@ -343,17 +341,19 @@ def process_gene_summary(df):
     gene_symb_alt = gene_symb_alt.rename(columns={'GENE_SYMB_ALT':'GENE_SYMBOL'})
 
     gene_summary_symbols = pd.concat([gene_summary_symbols,gene_symb_alt],ignore_index=True)
+    gene_summary_symbols['LOOKUP_SOURCE'] = 'gene_summary'
 
     df['GENE_SYMBOL'] = df['GENE_SYMBOL'].replace('',np.NaN)
 
     # Normalize Gene-Mim ID Links
-    gene_summary_omim = df[['GENE_ID','MIM_ID']]
-    gene_summary_omim = gene_summary_omim.explode("MIM_ID")
-    gene_summary_omim = gene_summary_omim[gene_summary_omim['MIM_ID'].notnull()].reset_index(drop=True)
+    gene_summary_omim = gene_summary_omim.rename(columns={'MIM_ID':'OMIM_ID'})
+    gene_summary_omim = gene_summary_omim.explode("OMIM_ID")
+    gene_summary_omim = gene_summary_omim[gene_summary_omim['OMIM_ID'].notnull()].reset_index(drop=True)
+    gene_summary_omim['LOOKUP_SOURCE'] = 'gene_summary'
 
-    df = df.drop(columns=['LocationHist','Organism','ChrSort','OtherDesignations','GenomicInfo',\
-                          'OtherAliases','MIM_ID','ChrAccVer','Status','CurrentID','NomenclatureStatus',\
-                          'NomenclatureSymbol','GENE_SYMB_ALT','GeneticSource'])
+    df = df.drop(columns=['LOCATIONHIST','ORGANISM','CHRSORT','OTHERDESIGNATIONS','GENOMICINFO',\
+                        'OTHERALIASES','MIM_ID','CHRACCVER','STATUS','CURRENTID','NOMENCLATURESTATUS',
+                        'NOMENCLATURESYMBOL','GENE_SYMB_ALT','GENETICSOURCE'])
 
     gene_data_cols = ['GENE_ID','GENE_SYMBOL'] + [c for c in df.columns if c not in ['GENE_ID','GENE_SYMBOL']]
     df = df[gene_data_cols]

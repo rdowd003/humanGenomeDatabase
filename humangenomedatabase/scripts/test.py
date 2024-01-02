@@ -6,7 +6,7 @@ import pdb
 
 create_database = False
 pipetype = 'ncbi'
-db_tables = ['gene2go']
+db_tables = ['gene_summary']
 
 # Initialize pipeline
 hgd_pipeline = hgdp.humanGenomeDataPipe(pipetype=pipetype)

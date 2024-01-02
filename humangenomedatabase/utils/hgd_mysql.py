@@ -3,6 +3,7 @@ import os
 import pymysql
 import sqlalchemy
 import pandas as pd
+import bcpandas as bcp 
 
 from humangenomedatabase.configs import auto_config as cfg
 
@@ -14,6 +15,12 @@ class mysqlDataPipe:
         #self.conn = pymysql.connect(cfg.DB_HOST, cfg.DB_USER, cfg.DB_PASS, local_infile=True)
         conn_string = f"mysql+mysqlconnector://[{cfg.DB_USER}]:[{cfg.DB_PASS}]@[{cfg.DB_HOST}]:[3306]/[{cfg.RDS_DB}]"
         self.conn = sqlalchemy.create_engine(conn_string, echo=False)
+        
+        self.creds = bcp.SqlCreds(
+            'my_server',
+            'my_db',
+            'my_username',
+            'my_password')
 
 
     def write_data(self,db_table,db_table_df,overwrite,chunksize=None):
@@ -28,6 +35,18 @@ class mysqlDataPipe:
                             index=False,
                             chunksize=chunksize,
                             method="multi")
+        except Exception as e:
+            print(e)
+
+    
+    def write_data_bcp(self,db_table,db_table_df,overwrite,chunksize=None):
+        if overwrite:
+            if_exists = 'overwrite'
+        else:
+            if_exists = 'append'
+
+        try:
+            bcp.to_sql(db_table_df,'db_table',self.creds,index=False,if_exists=if_exists)
         except Exception as e:
             print(e)
         

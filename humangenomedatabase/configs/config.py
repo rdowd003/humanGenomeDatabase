@@ -12,9 +12,9 @@ class Common(object):
     S3_BUCKET = "human-genome-data/database"
 
 class Local(Common):
-    IN_MEM = False
+    IN_MEM = True
     LOG_DIR = "local/"
-    SAVELOC = False
+    SAVELOC = True
 
     RDS_DB = "human-genome-database"
     DB_USER = os.getenv('HGD_USER')

@@ -1768,3 +1768,67 @@
 2023-12-29 18:41:09,566 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
 2023-12-29 18:41:09,566 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
 2023-12-29 18:41:09,566 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 
+2023-12-30 15:49:50,956 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'ncbi' - Begin function
+2023-12-30 15:49:50,957 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-30 15:49:50,958 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene_summary', overwrite=True - Begin function
+2023-12-30 15:49:50,960 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene_summary' - Begin function
+2023-12-30 15:49:50,962 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene_summary' - Begin function
+2023-12-30 15:50:08,561 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_summary': 's3://human-genome-data/database/data/raw/ncbi/ncbi_human_gene_summary.csv'}
+2023-12-30 15:50:08,561 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_summary': 's3://human-genome-data/database/data/raw/ncbi/ncbi_human_gene_summary.csv'}
+2023-12-30 15:50:08,579 - INFO       - hgd_pipe.py - transform_table - Arguments: 'gene_summary', 's3://human-genome-data/database/data/raw/ncbi/ncbi_human_gene_summary.csv' - Begin function
+2023-12-30 15:50:08,939 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: Table gene_summary not found - please extract first or update data_dict with location of file
+2023-12-30 15:50:08,939 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: Table gene_summary not found - please extract first or update data_dict with location of file
+2023-12-30 15:52:29,347 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'ncbi' - Begin function
+2023-12-30 15:52:29,347 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-30 15:52:29,349 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene_summary', overwrite=True - Begin function
+2023-12-30 15:52:29,350 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene_summary' - Begin function
+2023-12-30 15:52:29,352 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene_summary' - Begin function
+2023-12-30 15:52:39,917 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_summary':                NAME                                        DESCRIPTION STATUS CURRENTID  ...   CHRSTART                                           ORGANISM                                       LOCATIONHIST        UID
+0     OM395_RS24690            alpha-amylase family glycosyl hydrolase      2         0  ...  999999999  {'ScientificName': 'Serratia bockelmannii', 'C...                                                 []   86583157
+1     OM395_RS24680                                             pseudo      2         0  ...  999999999  {'ScientificName': 'Serratia bockelmannii', 'C...                                                 []   86583155
+2              TP53                                  tumor protein p53      0         0  ...    7668420  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       7157
+3     OM395_RS24685                           DinI-like family protein      2         0  ...  999999999  {'ScientificName': 'Serratia bockelmannii', 'C...                                                 []   86583156
+4              EGFR                   epidermal growth factor receptor      0         0  ...   55019016  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       1956
+...             ...                                                ...    ...       ...  ...        ...                                                ...                                                ...        ...
+4995         IL11RA              interleukin 11 receptor subunit alpha      0         0  ...   34652184  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       3590
+4996            GSS                             glutathione synthetase      0         0  ...   34928431  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       2937
+4997         FRA16B  fragile site, distamycin A type, rare, fra(16)...      0         0  ...   65321662  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...  109611591
+4998        SLC28A3                  solute carrier family 28 member 3      0         0  ...   84275456  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...      64078
+4999        HNRNPH2         heterogeneous nuclear ribonucleoprotein H2      0         0  ...  101408221  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       3188
+
+[5000 rows x 21 columns]}
+2023-12-30 15:52:40,003 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function {'gene_summary':                NAME                                        DESCRIPTION STATUS CURRENTID  ...   CHRSTART                                           ORGANISM                                       LOCATIONHIST        UID
+0     OM395_RS24690            alpha-amylase family glycosyl hydrolase      2         0  ...  999999999  {'ScientificName': 'Serratia bockelmannii', 'C...                                                 []   86583157
+1     OM395_RS24680                                             pseudo      2         0  ...  999999999  {'ScientificName': 'Serratia bockelmannii', 'C...                                                 []   86583155
+2              TP53                                  tumor protein p53      0         0  ...    7668420  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       7157
+3     OM395_RS24685                           DinI-like family protein      2         0  ...  999999999  {'ScientificName': 'Serratia bockelmannii', 'C...                                                 []   86583156
+4              EGFR                   epidermal growth factor receptor      0         0  ...   55019016  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       1956
+...             ...                                                ...    ...       ...  ...        ...                                                ...                                                ...        ...
+4995         IL11RA              interleukin 11 receptor subunit alpha      0         0  ...   34652184  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       3590
+4996            GSS                             glutathione synthetase      0         0  ...   34928431  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       2937
+4997         FRA16B  fragile site, distamycin A type, rare, fra(16)...      0         0  ...   65321662  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...  109611591
+4998        SLC28A3                  solute carrier family 28 member 3      0         0  ...   84275456  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...      64078
+4999        HNRNPH2         heterogeneous nuclear ribonucleoprotein H2      0         0  ...  101408221  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       3188
+
+[5000 rows x 21 columns]}
+2023-12-30 15:52:40,091 - INFO       - hgd_pipe.py - transform_table - Arguments: 'gene_summary',                NAME                                        DESCRIPTION STATUS CURRENTID  ...   CHRSTART                                           ORGANISM                                       LOCATIONHIST        UID
+0     OM395_RS24690            alpha-amylase family glycosyl hydrolase      2         0  ...  999999999  {'ScientificName': 'Serratia bockelmannii', 'C...                                                 []   86583157
+1     OM395_RS24680                                             pseudo      2         0  ...  999999999  {'ScientificName': 'Serratia bockelmannii', 'C...                                                 []   86583155
+2              TP53                                  tumor protein p53      0         0  ...    7668420  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       7157
+3     OM395_RS24685                           DinI-like family protein      2         0  ...  999999999  {'ScientificName': 'Serratia bockelmannii', 'C...                                                 []   86583156
+4              EGFR                   epidermal growth factor receptor      0         0  ...   55019016  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       1956
+...             ...                                                ...    ...       ...  ...        ...                                                ...                                                ...        ...
+4995         IL11RA              interleukin 11 receptor subunit alpha      0         0  ...   34652184  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       3590
+4996            GSS                             glutathione synthetase      0         0  ...   34928431  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       2937
+4997         FRA16B  fragile site, distamycin A type, rare, fra(16)...      0         0  ...   65321662  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...  109611591
+4998        SLC28A3                  solute carrier family 28 member 3      0         0  ...   84275456  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...      64078
+4999        HNRNPH2         heterogeneous nuclear ribonucleoprotein H2      0         0  ...  101408221  {'ScientificName': 'Homo sapiens', 'CommonName...  [{'AnnotationRelease': 'RS_2023_10', 'Assembly...       3188
+
+[5000 rows x 21 columns] - Begin function
+2023-12-30 15:52:40,093 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 'GENE_ID'
+2023-12-30 15:52:40,093 - ERROR      - hgd_logging.py - log_decorator_wrapper - Exception: 'GENE_ID'
+2023-12-30 15:54:08,859 - INFO       - hgd_pipe.py - set_pipe - Arguments: 'ncbi' - Begin function
+2023-12-30 15:54:08,859 - INFO       - hgd_logging.py - log_decorator_wrapper - Returned: - End function None
+2023-12-30 15:54:08,861 - INFO       - hgd_pipe.py - single_table_refresh - Arguments: 'gene_summary', overwrite=True - Begin function
+2023-12-30 15:54:08,862 - INFO       - hgd_pipe.py - extract_table - Arguments: 'gene_summary' - Begin function
+2023-12-30 15:54:08,864 - INFO       - hgd_pipe.py - extract_one - Arguments: 'gene_summary' - Begin function
