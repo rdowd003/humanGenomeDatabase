@@ -4,3 +4,5 @@ numpy
 biopython
 SQLAlchemy
 pymysql
+pyspark
+sf3s
