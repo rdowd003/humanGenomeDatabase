@@ -17,9 +17,6 @@ class Local(Common):
     SAVELOC = True
 
     RDS_DB = "human-genome-database"
-    DB_USER = os.getenv('HGD_USER')
-    DB_PASS = os.getenv('HGD_PASSWORD')
-    DB_HOST = "localhost"
 
 
 class Production(Common):
@@ -28,10 +25,13 @@ class Production(Common):
     SAVELOC = False
 
     RDS_DB = "human-genome-database-dev1"
-    DB_USER = os.getenv('HGD_USER')
-    DB_PASS = os.getenv('HGD_PASSWORD')
-    DB_HOST = os.getenv('HCG_HOST')
+    DB_USER = os.getenv('HGD_USER_RDS')
+    DB_PASS = os.getenv('HGD_PASSWORD_RDS')
+    DB_HOST = os.getenv('HCG_HOST_RDS')
 
 
 class Staging(Production):
     IN_MEM = True
+    DB_USER = os.getenv('HGD_USER_LOC')
+    DB_PASS = os.getenv('HGD_PASSWORD_LOC')
+    DB_HOST = "localhost"

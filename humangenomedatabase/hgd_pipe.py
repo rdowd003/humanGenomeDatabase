@@ -5,12 +5,12 @@ import re
 from multiprocessing import Pool
 import pyspark.sql.functions as F
 
-from humangenomedatabase.configs import auto_config as cfg
-import humangenomedatabase.source_pipes.kegg_pipe.kegg_data_pipe  as kegg
-import humangenomedatabase.source_pipes.ncbi_pipe.ncbi_data_pipe as ncbi
-import humangenomedatabase.utils.hgd_utils as hgd
-import humangenomedatabase.utils.hgd_mysql as hgdm
-from humangenomedatabase.utils.hgd_logging import log,get_logger
+from configs import auto_config as cfg
+import source_pipes.kegg_pipe.kegg_data_pipe  as kegg
+import source_pipes.ncbi_pipe.ncbi_data_pipe as ncbi
+import utils.hgd_utils as hgd
+import utils.hgd_mysql as hgdm
+from utils.hgd_logging import log,get_logger
 
 
 class humanGenomeDataPipe:
