@@ -23,51 +23,14 @@ class humanGenomeDataPipe:
 
     Attributes
     ----------
-    data_dict : dict
-        Stores either the data, or the saved-location of raw and processed 
-            data. Can be used with "load_data" utility function, debugging, 
-            and simply determining where data is saved during processing 
-    full_refresh : bool
-        tbd
-
-
-    Methods
-    -------
-    set_pipe(pipetype=""):
-        Instantiates a source-pipeline class object.
-    
-    extract_data():
-        Initializes raw data-extraction process for 
-            either a single table (if db_table argument is
-            pass to instantiation) or loop over all tables
-            for the given pipetype
-
-            
-    tranform_table(db_table):
-        Initializes table-specific processing for a given 
-            db_table type. Should be used for debugging,
-            or when an intermediate output dataframe is 
-            desired for a the single table type
-
-
-    tranform_data(db_table_list):
-        Initializes a transformation pipeline process for 
-            all given tables
-
-
-    load_data(overwrite):
-        Used to load data to MySQL database & execute queries
-        ** Note: different from the utility function by the 
-            same name that is used to load csv files into DF
-
-    full_etl():
-        Initializes all functions seqentially to create a
-            simplified method for running a full-etl for
-            the given pipetype, table type, or full-refresh
-
-    execute():
-        Initializes the HGD pipe based on parameters given & 
-            set via supporting functions
+    pipetype : str
+        Required argument, indicating which data-source pipe to initialize
+    auto_extract : bool
+        Optional argument, indicating whether to re-extract data from source
+        or check for existing files in /data/source/raw/ directory
+    data_dict: dict
+        Non-argument, created on instantiation to store information or data 
+        related to data-pipes being worked on
     """
     
     def __init__(self,pipetype="kegg",auto_extract=False):
@@ -95,8 +58,8 @@ class humanGenomeDataPipe:
 
         Parameters
         ----------
-        pipetype : str
-            Data source pipeline to instatiate (see read me for
+        pipetype : str [required]
+            Data source pipeline to instantiate (see read me for
             supported sources)
 
         Returns
@@ -111,7 +74,34 @@ class humanGenomeDataPipe:
             self.datapipe = ncbi.ncbiDataPipe(cfg)
 
 
+    @log
+    def validate_db_type(db_table,source_dbs):
+        if db_table not in source_dbs:
+            raise Exception(f"Invalid Database ({db_table}). Please Try one of: {source_dbs}")
+
+
+    @log
     def create_database(self,structure_only=False):
+        """
+        Instantiates a MySQL pipeline to create database
+        & related schemas for the Human Genome Database 
+        as defined in sql/hgd_database.sql .
+
+        This should be run prior to any "load" function-use
+        if loading data into a MySQL database is desired
+
+        Parameters
+        ----------
+        structure_only : bool [optional]
+            Whether to utilize the structure-only backup file
+            or the full structure & data backup file. Should be
+            set to True for easiest DB set up, with latest 
+            published data
+
+        Returns
+        -------
+        None
+        """
 
         if structure_only:
             file_name = 'hgd_database_structure.sql'
@@ -131,6 +121,28 @@ class humanGenomeDataPipe:
             
     @log
     def extract_table(self,db_table,multi_extract=False):
+        """
+        Initializes raw data-extraction process for 
+        a single data-source dataset.
+
+        Parameters
+        ----------
+        db_table : str [optional]
+            The string-name of the data-source dataset to
+            be extracted. See README for valid data sources
+
+        Returns
+        -------
+        raw_data_dict: dict
+            When an extract process is run, regardlless of the db_type,
+            a dictionary will always be returned. If the config param 
+            "IN_MEM" is True, the dictionary will be {<db_table>:raw_df},
+            where the value is the raw extracted data in a pandas
+            DataFrame. If "IN_MEM" is False, the raw pandas DF will be saved
+            to a flat file and the dict-value will be the file-path instead
+            {<db_table>:'path/to/raw/file/filename.csv'}.
+        """
+
         if not multi_extract:
             print(f"Extracting data for database: {db_table}")
             raw_data_dict = self.datapipe.extract_one(db_table)
@@ -145,6 +157,30 @@ class humanGenomeDataPipe:
     
     @log
     def transform_table(self,db_table,raw_data):
+        """
+        Initializes raw-data-processing process for 
+        a single table.
+
+        Parameters
+        ----------
+        db_table : str [required]
+            The string-name of the data-source dataset to
+            be extracted. See README for valid data sources
+        raw_data : str OR pandas-dataframe [required]
+            Either pandas raw-dataframe ("IN_MEN" = True), or file-paht
+            from which the raw_data will be loaded ("IN_MEM" = False)
+
+        Returns
+        -------
+        proc_data_dict: dict
+            When a transform process is run, regardlless of the db_type,
+            a dictionary will always be returned. If the config param 
+            "IN_MEM" is True, the dictionary will be {<db_table>:proc_df},
+            where the value is the processed data in a pandas
+            DataFrame. If "IN_MEM" is False, the processed pandas DF will be 
+            saved to a flat file and the dict-value will be the file-path instead
+            {<db_table>:'path/to/processed/file/filename.csv'}.
+        """
         if not cfg.IN_MEM:
             try:
                 raw_data = hgd.load_data(db_table,'raw',self.pipetype)
@@ -174,7 +210,33 @@ class humanGenomeDataPipe:
 
 
     @log
-    def load_table(self,mysqlpipe,db_table,proc_data_df=pd.DataFrame(),overwrite=False):
+    def load_table(self,db_table,mysqlpipe,proc_data_df=pd.DataFrame(),overwrite=False):
+        """
+        Initializes processed-data-loading process for 
+        a single table to a database. Data is written to 
+        MySQL or SQLlite database
+
+        Parameters
+        ----------
+        db_table : str [required]
+            The string-name of the data-source dataset to
+            be extracted. See README for valid data sources
+        mysqlpipe : HGD-MySQL object [required]
+            Instantiated object fro utils/hgd_mysql - will
+            hold connection to DB based on params configured in configy.py
+        proc_data_df: Pandas DataFrame [optional]
+            The in-memory dataframe to be loaded. If empty or not
+            provided, the function will attempt to load the DB table type
+            using the utils function. If no table exists or can be loaded,
+            there will be an exception.
+        overwrite: bool [optional]
+            Whether or not to overwrite existing data in MySQL table
+
+        Returns
+        -------
+        None
+        """
+        
         if overwrite:
             mysqlpipe.create_table(db_table)
 
@@ -194,6 +256,34 @@ class humanGenomeDataPipe:
     
     @log
     def single_table_refresh(self,db_table,load_db=False,overwrite=False):
+        """
+        Initializes full extract-process(-load) "refresh" for a given
+        data-source dataset
+
+        Parameters
+        ----------
+        db_table : str [required]
+            The string-name of the data-source dataset to
+            be extracted. See README for valid data sources
+        mysqlpipe : HGD-MySQL object [required]
+            Instantiated object fro utils/hgd_mysql - will
+            hold connection to DB based on params configured in configy.py
+        proc_data_df: Pandas DataFrame [optional]
+            The in-memory dataframe to be loaded. If empty or not
+            provided, the function will attempt to load the DB table type
+            using the utils function. If no table exists or can be loaded,
+            there will be an exception.
+        overwrite: bool [optional]
+            Whether or not to overwrite existing data in MySQL table
+
+        Returns
+        -------
+        None
+        """
+
+        # Validate table first
+        self.validate_db_type(db_table,self.datapipe.db_table_dict)
+
         # Extract dataset (optionally)
         if self.auto_extract:
             self.data_dict["raw"] = self.extract_table(db_table)
@@ -223,15 +313,38 @@ class humanGenomeDataPipe:
 
             for db_table,proc_data in self.data_dict["processed"].items():
                 if cfg.IN_MEM:
-                    self.load_table(mysqlpipe,db_table,proc_data,overwrite)
+                    self.load_table(db_table,mysqlpipe,proc_data,overwrite)
                 else:
                     # Will load data from disk using filepath ("data" will be string)
-                    self.load_table(mysqlpipe,db_table,overwrite)
+                    self.load_table(db_table,mysqlpipe,overwrite)
 
             mysqlpipe.close()
         
 
-    def hgd_table_refresh(self,db_table_list=[]):
+    def hgd_refresh(self,db_table_list=[]):
+        """
+        Initializes full extract-process(-load) "refresh" for a given
+        list of data-source datasets. Will call single_table_refresh
+        for each table.
+
+        This is similar to a full "main" or "execute" function for 
+        a database refresh.
+
+        Parameters
+        ----------
+        db_table_list : list [optional]
+            The string-names of data-source dataset to
+            be extracted, processed & loaded. 
+
+        Note: This is intended to be run for one pipetype at
+        a time and will not execute for multiple without 
+        instantiation of a new humanGenomeDataPipe object
+
+        Returns
+        -------
+        None
+        """
+
         if not db_table_list:
             db_table_list = list(self.datapipe.db_table_dict.keys())
 

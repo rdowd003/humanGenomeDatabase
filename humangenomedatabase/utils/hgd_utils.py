@@ -7,11 +7,17 @@ from humangenomedatabase.configs import auto_config as cfg
 
 
 def validate_db_type(db_table,source_dbs):
+    """Checks input <db_table> against valid (supported)
+    data-source datasets"""
+
     if db_table not in source_dbs:
         raise Exception(f"Invalid Database ({db_table}). Please Try one of: {source_dbs}")
 
 
 def load_data(db_table,table_type,source):
+    """Loads data from flat-file to Pandas DF, from either local
+    or AWS-S3 location (configured in config.py)"""
+    
     filename = f"{source}_human_{db_table}.csv"
     file_path = f"data/{table_type}/{source}/{filename}"
 
@@ -30,6 +36,9 @@ def load_data(db_table,table_type,source):
 
 
 def save_data(df,db_table,source,table_type):
+    """Saves data from Pandas DF, to flat file in either local
+    or AWS-S3 location (configured in config.py)"""
+
     file_name = f"{source}_human_{db_table}.csv"
     file_path = f"data/{table_type}/{source}/"
 
@@ -53,7 +62,6 @@ def save_data(df,db_table,source,table_type):
 
 """
 This will be added as Stored Procedure to DB, not done in python - saving to remember details of transformations
-"""
 def join_gene_data(ncbi_gene_info,ncbi_gene_summary,kegg_gene):
     ncbi_gene_info = ncbi_gene_info[['GENE_ID','GENE_TYPE','NOMENCLATURE_STATUS']]
     gene_merged = ncbi_gene_info.merge(ncbi_gene_summary,on=['GENE_ID'],how='outer',suffixes=['_NCBI_GI','_NCBI_SUM'])
@@ -71,3 +79,4 @@ def join_gene_data(ncbi_gene_info,ncbi_gene_summary,kegg_gene):
     gene_merged = gene_merged.drop(columns = ['GENE_TYPE_KEGG','CHRSTOP_KEGG','CHRSTART_KEGG'])
 
     return gene_merged
+"""

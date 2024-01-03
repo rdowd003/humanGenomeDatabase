@@ -27,7 +27,8 @@ Soon to come:
 
 <br>
 
-### 1c. Source Connectivity & Lookups
+### 1c. Database Design
+This is an overview of how (currently supported) sources are connected
 
 **Key**
 - Purple: Kegg Datasets (gene, pathway, disease, etc.)
@@ -61,10 +62,36 @@ Each pipeline has a set of databases that is a sub-section of those from the ori
 
 
 ## 2. Usage
+### 2a. Set Up
 
-### 2a. Building The Database
+#### 2a.1 Environment
+In your environment, you'll need to add some variables to your environment
 
-#### 2a.1. Recreating Database - Using the dump
+- AWS - User Credentials
+    - AWS_ACCESS_KEY
+    - AWS_SECRET_KEY
+
+- MySQL - Local
+    - HGD_USER_LOCAL
+    - HGD_PASSWORD_LOCAL
+
+- MySQL - AWS RDS
+    - HGD_USER_RDS
+    - HGD_PASSWORD_RDS
+    - HCG_HOST_RDS
+
+
+#### 2a.2 Config
+In the config file (configs/config.py), you'll want to set the following variables:
+
+- NCPU_MAX (int): How many processes to launch when a called-process is parallelized (default = 1)
+(Note: Currently only "extract" process can be parallelized)
+- IN_MEM (boolean): Whether to hold data in memory (default = True)
+
+
+### 2b. Building The Database
+
+#### 2b.1. Recreating Database - Using the dump
 If you would like to re-create the MySQL database from a backup dump, follow the instructions below.
 Note: This is the easiest method, but will result in static data. The pipeline is scheduled to run weekly & upload new dump to 
 Github weekly.
@@ -98,7 +125,7 @@ $ mysql -p -u [user] human_genome_database < hgd_database.sql
 ```
 
 
-#### 2a.2.. Recreating Database - Running the pipeline
+#### 2b.2. Recreating Database - Running the pipeline
 If you would like to re-create the MySQL database by running the pipeline yourself, follow the instructions below.
 Note: This is a trickier method, but will allow you to create your own database & refresh when you want to 
 
@@ -112,10 +139,11 @@ for pipetype in ['kegg','ncbi']:
 ```
 
 
-#### 2a.3. Pulling & Exploring Data without Database
+#### 2b.3. Pulling & Exploring Data without Database
 If you are a data scientist, analyst, researcher, or anyone who wants to explore this Human Genome data, follow the steps below
 to pull the data locally into your environment
 
+< more to come >
 
 
 
